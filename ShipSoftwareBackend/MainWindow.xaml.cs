@@ -422,10 +422,10 @@ namespace ShipSoftwareBackend
                                             Log("Error: SQL error on SELECT COUNT() (" + name + ")");
                                         }
 
-                                        // ShipRoutes -table (* is this correct table?)
-                                        // IF startingPoint is NULL: UPDATE only endingPoint
+                                        // ShipRoutes -table
+                                        // IF StartingPoint is NULL and EndingPoint NOT NULL: UPDATE only endingPoint
                                         // ELSE IF startingPoint & endingPoint != NULL: UPDATE startingPoint and endingPoint
-                                        // ELSE: ??
+                                        // ELSE: Error
                                         if (route[0] == null && route[1] != null)
                                         {
                                             query = new SqlCommand("SELECT ShipRoutesID FROM ShipRoutes WHERE StartingPortID = null AND EndingPortID = (SELECT ShipPortID FROM ShipPorts WHERE Name LIKE '" + route[1] + "%')", con);
@@ -653,11 +653,6 @@ namespace ShipSoftwareBackend
                             "https://github.com/Shipsoftware-schoolproject\n" +
                             "Developed by Tomi Lähteenmäki, Jori Jalkanen, Henri Schreck.\n" +
                             "(c) 2016.", "About");
-        }
-
-        private void btnShowHostname_Click(object sender, RoutedEventArgs e)
-        {
-            MessageBox.Show("Hostname: " + config.SQL_HOSTNAME);
         }
     }
 }
