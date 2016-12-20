@@ -309,6 +309,21 @@ namespace ShipSoftwareBackend
             return ret;
         }
 
+        private XmlDocument loadXML(string data)
+        {
+            XmlDocument xml = new XmlDocument();
+            try
+            {
+                xml.LoadXml(data);
+            }
+            catch
+            {
+                xml = null;
+            }
+
+            return xml;
+        }
+
         // backend thread which handles all API logic
         private void APICallThread()
         {
@@ -333,28 +348,51 @@ namespace ShipSoftwareBackend
 
                     if (data == null)
                     {
-                        Log("API responsed too slow response?");
+                        Log("Error: API responded too slow response?");
                         UpdateUpdated(false);
                     }
                     else
                     {
-                        XmlDocument xml = new XmlDocument();
-                        try
-                        {
-                            xml.LoadXml(data);
-                        }
-                        catch
+                        XmlDocument xml = loadXML(data);
+                        if (xml == null)
                         {
                             Log("Error: API returned malformed data..");
-                            xml = null;
+                            UpdateUpdated(false);
                         }
 
-                        if (xml != null && xml.GetElementsByTagName("result")[0].InnerText.ToString() == "ok")
+                        if (xml != null && xml.GetElementsByTagName("result")[0].InnerText.ToString() != "ok")
+                        {
+                            if (xml != null)
+                            {
+                                string errorMessage = xml.GetElementsByTagName("description")[0].InnerText.ToString();
+                                Log("API error: \"" + errorMessage + "\"");
+                                UpdateUpdated(false);
+
+                                // invalid API key
+                                if (errorMessage == "invalid API key")
+                                {
+                                    ThreadShutdown();
+                                    Dispatcher.BeginInvoke(new Action(delegate ()
+                                    {
+                                        btnStart.IsEnabled = false;
+                                        btnStart.ToolTip = "Update your API key.";
+                                    }));
+                                    threadRun = false;
+                                    Log("Invalid API key! Check your API key.");
+                                    MessageBox.Show("Invalid API key! Check your API key.");
+                                }
+                            }
+                        }
+                        else
                         {
                             int entries = int.Parse(xml.GetElementsByTagName("found")[0].InnerText.ToString());
-                            MessageBox.Show("Entries: " + entries);
 
-                            if (entries > 0)
+                            if (entries <= 0)
+                            {
+                                Log("API query did not return any ships.");
+                                UpdateUpdated(false);
+                            }
+                            else
                             {
                                 SqlConnection con = sqlCon();
 
@@ -417,7 +455,7 @@ namespace ShipSoftwareBackend
                                                     }
                                                     catch
                                                     {
-                                                        Log("Error: failed to update ship route (" + name + ")");
+                                                        Log("Error: failed to update route for ship \"" + name + "\"");
                                                     }
                                                 }
                                                 else
@@ -427,7 +465,7 @@ namespace ShipSoftwareBackend
                                             }
                                             catch
                                             {
-                                                Log("Error: database does not contain a route (null - " + route[1] + ") which ship (" + name + ") is sailing");
+                                                Log("Warn: no route \"null - " + route[1] + "\" for ship \"" + name + "\"");
                                             }
                                         }
                                         else if (route[0] != null && route[1] != null)
@@ -458,52 +496,22 @@ namespace ShipSoftwareBackend
                                             }
                                             catch
                                             {
-                                                Log("Error: database does not contain a route (" + route[0] + " - " + route[1] + ") which ship (" + name + ") is sailing");
+                                                Log("Warn: no route \"" + route[0] + " - " + route[1] + "\" for ship \"" + name + "\"");
                                             }
                                         }
                                         else
                                         {
-                                            Log("Warn: Ship " + name + " do not have start neither end port, skipping route update.");
+                                            Log("Warn: Ship \"" + name + " \" do not have start neither end port, skipping route update.");
                                         }
-
-                                        //MessageBox.Show("Name: " + name + "\nMMSI: " + mmsi + "\nLatitude: " + latitude + "\nLongitude: " + longitude + "\nCourse: " + course + "\nStarting point: \"" + route[0] + "\"\nEnding point: \"" + route[1] + "\"");
                                     }
                                     con.Close();
 
-                                    Log("Ships data updated succesfully.");
+                                    Log("Ships updated succesfully.");
                                     UpdateUpdated(true);
                                 }
                                 catch
                                 {
                                     Log("Error: failed to connect database");
-                                }
-                            }
-                            else
-                            {
-                                Log("API query did not return any ships.");
-                                UpdateUpdated(false);
-                            }
-                        }
-                        else
-                        {
-                            if (xml != null)
-                            {
-                                string errorMessage = xml.GetElementsByTagName("description")[0].InnerText.ToString();
-                                Log("API error: \"" + errorMessage + "\"");
-                                UpdateUpdated(false);
-
-                                // invalid API key
-                                if (errorMessage == "invalid API key")
-                                {
-                                    ThreadShutdown();
-                                    Dispatcher.BeginInvoke(new Action(delegate ()
-                                    {
-                                        btnStart.IsEnabled = false;
-                                        btnStart.ToolTip = "Update your API key.";
-                                    }));
-                                    threadRun = false;
-                                    Log("Invalid API key! Check your API key.");
-                                    MessageBox.Show("Invalid API key! Check your API key.");
                                 }
                             }
                         }
