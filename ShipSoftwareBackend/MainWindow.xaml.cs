@@ -386,41 +386,14 @@ namespace ShipSoftwareBackend
                                         }
 
                                         // GPS -table
-                                        // if ShipID exists: UPDATE query 
-                                        // else: INSERT INTO query
-                                        query = new SqlCommand("SELECT COUNT(*) FROM GPS WHERE ShipID = " + ships[i][0], con);
+                                        query = new SqlCommand("INSERT INTO GPS (ShipID, North, East) VALUES (" + ships[i][0] + ", " + latitude + ", " + longitude + ")", con);
                                         try
                                         {
-                                            int count = (int)query.ExecuteScalar();
-                                            if (count == 0)
-                                            {
-                                                query = new SqlCommand("INSERT INTO GPS (ShipID, North, East) VALUES (" + ships[i][0] + ", " + latitude + ", " + longitude + ")", con);
-                                                try
-                                                {
-                                                    query.ExecuteNonQuery();
-                                                }
-                                                catch (Exception ex)
-                                                {
-                                                    Log("Error: failed to INSERT GPS location to database (" + name + ") " + ex.Message);
-                                                }
-                                            }
-                                            else
-                                            {
-                                                query = new SqlCommand("UPDATE GPS SET North = " + latitude + ", East = " + longitude + " WHERE ShipID = " + ships[i][0], con);
-                                                try
-                                                {
-                                                    query.ExecuteNonQuery();
-                                                }
-                                                catch (Exception ex)
-                                                {
-                                                    MessageBox.Show(ex.Message);
-                                                    Log("Error: failed to UPDATE GPS location (" + name + ")");
-                                                }
-                                            }
+                                            query.ExecuteNonQuery();
                                         }
-                                        catch
+                                        catch (Exception ex)
                                         {
-                                            Log("Error: SQL error on SELECT COUNT() (" + name + ")");
+                                            Log("Error: failed to INSERT GPS location to database (" + name + ") " + ex.Message);
                                         }
 
                                         // ShipRoutes -table
