@@ -370,18 +370,19 @@ namespace ShipSoftwareBackend
                                         string latitude = xml.GetElementsByTagName("lat")[i].InnerText.ToString();
                                         string longitude = xml.GetElementsByTagName("lng")[i].InnerText.ToString();
                                         string course = xml.GetElementsByTagName("course")[i].InnerText.ToString();
+                                        string speed = xml.GetElementsByTagName("speed")[i].InnerText.ToString();
                                         string comment = xml.GetElementsByTagName("comment")[i].InnerText.ToString();
                                         string[] route = getRoute(comment);
 
                                         // Ships -table: UPDATE course
-                                        query = new SqlCommand("UPDATE Ships SET Course = " + course.ToString() + " WHERE ShipID = " + ships[i][0], con);
+                                        query = new SqlCommand("UPDATE Ships SET Course = " + course.ToString() + ", ShipSpeed = " + speed + " WHERE ShipID = " + ships[i][0], con);
                                         try
                                         {
                                             query.ExecuteNonQuery();
                                         }
                                         catch
                                         {
-                                            Log("Error: failed to UPDATE course for " + name + ".");
+                                            Log("Error: failed to UPDATE Course and Speed for " + name + ".");
                                         }
 
                                         // GPS -table
