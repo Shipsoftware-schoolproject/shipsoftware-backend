@@ -9,6 +9,7 @@ using System.Threading;
 using System.Windows;
 using System.Windows.Media;
 using System.Xml;
+using MySql.Data.MySqlClient;
 
 namespace ShipSoftwareBackend
 {
@@ -185,18 +186,37 @@ namespace ShipSoftwareBackend
             }));
         }
 
-        SqlConnection sqlCon()
+        dynamic sqlCon()
         {
-            return new SqlConnection("Data source = " + config.SQL_HOSTNAME + "; Initial Catalog = " + config.SQL_DATABASE + "; User ID = " + config.SQL_USERNAME + "; Password = " + config.SQL_PASSWORD + "; MultipleActiveResultSets = true");
+            if (config.SQL_DATABASE_SYSTEM == "mssql")
+            {
+                return new SqlConnection("Data source = " + config.SQL_HOSTNAME + "; Initial Catalog = " + config.SQL_DATABASE + "; User ID = " + config.SQL_USERNAME + "; Password = " + config.SQL_PASSWORD + ";");
+            }
+            else
+            {
+                return new MySqlConnection("Server=" + config.SQL_HOSTNAME + ";Database=" + config.SQL_DATABASE + ";Username=" + config.SQL_USERNAME + ";Password=" + config.SQL_PASSWORD + ";");
+            }
+        }
+
+        dynamic sqlCommand(string query, dynamic connection)
+        {
+            if (config.SQL_DATABASE_SYSTEM == "mssql")
+            {
+                return new SqlCommand(query, connection);
+            }
+            else
+            {
+                return new MySqlCommand(query, connection);
+            }
         }
 
         // get all ships MMSI's from database
         List<List<string>> GetShips()
         {
-            SqlConnection con = sqlCon();
-            SqlDataReader reader;
-            SqlCommand query = new SqlCommand("SELECT ShipID, MMSI FROM Ships", con);
             List<List<string>> ships = new List<List<string>>();
+            dynamic con = sqlCon();
+            dynamic reader;
+            dynamic query = sqlCommand("SELECT ShipID, MMSI FROM Ships", con);
 
             try
             {
@@ -287,6 +307,7 @@ namespace ShipSoftwareBackend
             return result;
         }
 
+        // parse ship route
         private string[] getRoute(string route)
         {
             string startingPoint = null;
@@ -400,15 +421,24 @@ namespace ShipSoftwareBackend
                             }
                             else
                             {
-                                SqlConnection con = sqlCon();
+                                dynamic con = sqlCon();
 
                                 try
                                 {
                                     con.Open();
+                                }
+                                catch
+                                {
+                                    Log("Error: failed to connect database.");
+                                }
 
+                                if (con == null && con.State.ToString() != "Open") {
+                                        Log("Error: Database connection is not open");
+                                }
+                                else
+                                {
                                     for (int i = 0; i < entries; i++)
                                     {
-                                        SqlCommand query;
                                         string name = xml.GetElementsByTagName("name")[i].InnerText.ToString();
                                         int mmsi = int.Parse(xml.GetElementsByTagName("mmsi")[i].InnerText.ToString());
                                         string latitude = xml.GetElementsByTagName("lat")[i].InnerText.ToString();
@@ -417,44 +447,87 @@ namespace ShipSoftwareBackend
                                         string speed = xml.GetElementsByTagName("speed")[i].InnerText.ToString();
                                         string comment = xml.GetElementsByTagName("comment")[i].InnerText.ToString();
                                         string[] route = getRoute(comment);
+                                        string ship_route_query = null;
+                                        string ShipRoutesID = null;
 
                                         // Ships -table: UPDATE course
-                                        query = new SqlCommand("UPDATE Ships SET Course = " + course.ToString() + ", ShipSpeed = " + speed + " WHERE ShipID = " + ships[i][0], con);
-                                        try
+                                        using (dynamic query = sqlCommand("UPDATE Ships SET Course = " + course.ToString() + ", ShipSpeed = " + speed + " WHERE ShipID = " + ships[i][0], con))
                                         {
-                                            query.ExecuteNonQuery();
-                                        }
-                                        catch
-                                        {
-                                            Log("Error: failed to UPDATE Course and Speed for " + name + ".");
+                                            try
+                                            {
+                                                query.ExecuteNonQuery();
+                                            }
+                                            catch
+                                            {
+                                                Log("Error: failed to UPDATE Course and Speed for " + name + ".");
+                                            }
                                         }
 
                                         // GPS -table
-                                        query = new SqlCommand("INSERT INTO GPS (ShipID, North, East) VALUES (" + ships[i][0] + ", " + latitude + ", " + longitude + ")", con);
-                                        try
+                                        using (dynamic query = sqlCommand("INSERT INTO GPS (ShipID, North, East) VALUES (" + ships[i][0] + ", " + latitude + ", " + longitude + ")", con))
                                         {
-                                            query.ExecuteNonQuery();
-                                        }
-                                        catch (Exception ex)
-                                        {
-                                            Log("Error: failed to INSERT GPS location to database (" + name + ") " + ex.Message);
+                                            try
+                                            {
+                                                query.ExecuteNonQuery();
+                                            }
+                                            catch (Exception ex)
+                                            {
+                                                Log("Error: failed to INSERT GPS location to database (" + name + "). " + ex.Message);
+                                            }
                                         }
 
                                         // ShipRoutes -table
-                                        // IF StartingPoint is NULL and EndingPoint NOT NULL: UPDATE only endingPoint
-                                        // ELSE IF startingPoint & endingPoint != NULL: UPDATE startingPoint and endingPoint
-                                        // ELSE: Error
                                         if (route[0] == null && route[1] != null)
                                         {
-                                            query = new SqlCommand("SELECT ShipRoutesID FROM ShipRoutes WHERE StartingPortID = null AND EndingPortID = (SELECT ShipPortID FROM ShipPorts WHERE Name LIKE '" + route[1] + "%')", con);
-                                            try
+                                            ship_route_query = "SELECT ShipRoutesID FROM ShipRoutes WHERE StartingPortID = null AND EndingPortID = (SELECT ShipPortID FROM ShipPorts WHERE Name LIKE '" + route[1] + "%')";
+                                        }
+                                        else if (route[0] != null && route[1] == null)
+                                        {
+                                            ship_route_query = "SELECT ShipRoutesID FROM ShipRoutes WHERE StartingPortID = (SELECT ShipPortID FROM ShipPorts WHERE Name LIKE '" + route[0] + "%') AND EndingPortID = null";
+                                        }
+                                        else if (route[0] != null && route[1] != null)
+                                        {
+                                            ship_route_query = "SELECT ShipRoutesID FROM ShipRoutes WHERE StartingPortID = (SELECT ShipPortID FROM ShipPorts WHERE Name LIKE '" + route[0] + "%') AND EndingPortID = (SELECT ShipPortID FROM ShipPorts WHERE Name LIKE '" + route[1] + "%')";
+                                        }
+                                        else
+                                        {
+                                            Log("Warn: Ship \"" + name + " \" do not have start neither end port, skipping route update.");
+                                        }
+
+                                        if (ship_route_query != null)
+                                        {
+                                            bool update = true;
+
+                                            using (dynamic query = sqlCommand(ship_route_query, con))
                                             {
-                                                SqlDataReader reader;
-                                                reader = query.ExecuteReader();
-                                                if (reader.HasRows)
+                                                try
                                                 {
-                                                    reader.Read();
-                                                    query = new SqlCommand("UPDATE Ships SET ShipRoutesID = " + reader["ShipRoutesID"] + " WHERE ShipID = " + ships[i][0], con);
+                                                    using (dynamic reader = query.ExecuteReader())
+                                                    {
+                                                        if (reader.HasRows)
+                                                        {
+                                                            reader.Read();
+                                                            ShipRoutesID = reader["ShipRoutesID"].ToString();
+                                                        }
+                                                        else
+                                                        {
+                                                            if (route[0] == null) route[0] = "null";
+                                                            if (route[1] == null) route[1] = "null";
+                                                            Log("Warn: no route \"" + route[0] + " - " + route[1] + "\" for ship \"" + name + "\"");
+                                                            update = false;
+                                                        }
+                                                    }
+                                                }
+                                                catch
+                                                {
+                                                    Log("Error: route update query failed for ship " + name);
+                                                }
+                                            }
+
+                                            if (update)
+                                            {
+                                                using (dynamic query = sqlCommand("UPDATE Ships SET ShipRoutesID = " + ShipRoutesID + " WHERE ShipID = " + ships[i][0], con))
+                                                {
                                                     try
                                                     {
                                                         query.ExecuteNonQuery();
@@ -464,60 +537,13 @@ namespace ShipSoftwareBackend
                                                         Log("Error: failed to update route for ship \"" + name + "\"");
                                                     }
                                                 }
-                                                else
-                                                {
-                                                    throw new Exception();
-                                                }
                                             }
-                                            catch
-                                            {
-                                                Log("Warn: no route \"null - " + route[1] + "\" for ship \"" + name + "\"");
-                                            }
-                                        }
-                                        else if (route[0] != null && route[1] != null)
-                                        {
-                                            SqlDataReader reader;
-                                            query = new SqlCommand("SELECT ShipRoutesID FROM ShipRoutes WHERE StartingPortID = (SELECT ShipPortID FROM ShipPorts WHERE Name LIKE '" + route[0] + "%') AND EndingPortID = (SELECT ShipPortID FROM ShipPorts WHERE Name LIKE '" + route[1] + "%')", con);
-
-                                            try
-                                            {
-                                                reader = query.ExecuteReader();
-                                                if (reader.HasRows)
-                                                {
-                                                    reader.Read();
-                                                    query = new SqlCommand("UPDATE Ships SET ShipRoutesID = " + reader["ShipRoutesID"] + " WHERE ShipID = " + ships[i][0], con);
-                                                    try
-                                                    {
-                                                        query.ExecuteNonQuery();
-                                                    }
-                                                    catch
-                                                    {
-                                                        Log("Error: failed to update ship route (" + name + ")");
-                                                    }
-                                                }
-                                                else
-                                                {
-                                                    throw new Exception();
-                                                }
-                                            }
-                                            catch
-                                            {
-                                                Log("Warn: no route \"" + route[0] + " - " + route[1] + "\" for ship \"" + name + "\"");
-                                            }
-                                        }
-                                        else
-                                        {
-                                            Log("Warn: Ship \"" + name + " \" do not have start neither end port, skipping route update.");
                                         }
                                     }
                                     con.Close();
 
                                     Log("Ships updated succesfully.");
                                     UpdateUpdated(true);
-                                }
-                                catch
-                                {
-                                    Log("Error: failed to connect database");
                                 }
                             }
                         }
