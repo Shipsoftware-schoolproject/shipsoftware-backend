@@ -93,6 +93,12 @@ namespace ShipSoftwareBackend
                         Log("Warning: using empty password.");
                     }
                     break;
+                case 8:
+                    if (ErrorDialog("Invalid database system.\n\nDo you want to choose it now?", "You must choose the database system to use the program.", true, "Choose database system to start background service."))
+                    {
+                        Log("Invalid database system selected.");
+                    }
+                    break;
             }
         }
 
@@ -390,7 +396,7 @@ namespace ShipSoftwareBackend
                             if (entries <= 0)
                             {
                                 Log("API query did not return any ships.");
-                                UpdateUpdated(false);
+                                UpdateUpdated(true);
                             }
                             else
                             {

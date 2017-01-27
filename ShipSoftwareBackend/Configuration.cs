@@ -15,6 +15,7 @@ namespace ShipSoftwareBackend
         private string sql_username;
         private string sql_password;
         private string sql_hostname;
+        private string sql_database_system;
 
         public string API_KEY
         {
@@ -52,7 +53,13 @@ namespace ShipSoftwareBackend
             get { return sql_hostname; }
         }
 
-        public int ValidateConfiguration(string sql_database, string sql_username, string sql_password, string sql_hostname, string api_key, int log_size)
+        public string SQL_DATABASE_SYSTEM
+        {
+            private set { sql_database_system = value; }
+            get { return sql_database_system; }
+        }
+
+        public int ValidateConfiguration(string sql_database, string sql_username, string sql_password, string sql_hostname, string sql_database_system, string api_key, int log_size)
         {
             // Database name
             if (sql_database.Length < 1)
@@ -88,6 +95,12 @@ namespace ShipSoftwareBackend
             {
                 return 7;
             }
+            // Database system
+            else if (sql_database_system != "mssql" && sql_database_system != "mysql")
+            {
+                return 8;
+            }
+
 
             return 0;
         }
@@ -154,6 +167,16 @@ namespace ShipSoftwareBackend
                 retVal = -2;
             }
 
+            // Database type
+            if (xml.GetElementsByTagName("database_system").Count == 1)
+            {
+                sql_database_system = xml.GetElementsByTagName("database_system")[0].InnerText.ToString().Trim();
+            }
+            else
+            {
+                retVal = -2;
+            }
+
             // API key
             if (xml.GetElementsByTagName("apikey").Count == 1)
             {
@@ -188,10 +211,10 @@ namespace ShipSoftwareBackend
                 return -2;
             }
 
-            return ValidateConfiguration(sql_database, sql_username, sql_password, sql_hostname, API_KEY, log_size);
+            return ValidateConfiguration(sql_database, sql_username, sql_password, sql_hostname, sql_database_system, API_KEY, log_size);
         }
 
-        public bool SaveConfiguration(string database, string username, string password, string hostname, string api_key, int log_size)
+        public bool SaveConfiguration(string database, string username, string password, string hostname, string database_system, string api_key, int log_size)
         {
             XmlDocument xml = new XmlDocument();
             XmlDeclaration declaration = xml.CreateXmlDeclaration("1.0", "UTF-8", null);
@@ -222,6 +245,10 @@ namespace ShipSoftwareBackend
             elemHostname.InnerText = hostname;
             xml.DocumentElement.AppendChild(elemHostname);
 
+            XmlElement elemDatabaseSystem = xml.CreateElement("database_system");
+            elemDatabaseSystem.InnerText = database_system;
+            xml.DocumentElement.AppendChild(elemDatabaseSystem);
+
             XmlElement elemApiKey = xml.CreateElement("apikey");
             elemApiKey.InnerText = api_key;
             xml.DocumentElement.AppendChild(elemApiKey);
@@ -242,6 +269,7 @@ namespace ShipSoftwareBackend
                 sql_username = username;
                 sql_password = password;
                 sql_hostname = hostname;
+                sql_database_system = database_system;
                 this.api_key = api_key;
                 this.log_size = log_size;
                 return true;

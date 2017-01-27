@@ -27,6 +27,7 @@ namespace ShipSoftwareBackend
             txtUsername.Text = config.SQL_USERNAME;
             txtPassword.Password = config.SQL_PASSWORD;
             txtHostname.Text = config.SQL_HOSTNAME;
+            cmbDatabaseSystem.SelectedIndex = cmbDatabaseSystem.Items.IndexOf((ComboBoxItem)this.cmbDatabaseSystem.FindName(config.SQL_DATABASE_SYSTEM));
             // API key
             txtApiKey.Text = config.API_KEY;
             // Log size
@@ -55,6 +56,16 @@ namespace ShipSoftwareBackend
             string username = txtUsername.Text.Trim();
             string password = txtPassword.Password.Trim();
             string hostname = txtHostname.Text.Trim();
+            string database_system;
+            if (cmbDatabaseSystem.SelectedIndex == -1)
+            {
+                MessageBox.Show("No database system selected!", "Error");
+                return;
+            }
+            else
+            {
+                database_system = ((ComboBoxItem)cmbDatabaseSystem.SelectedItem).Name.ToString();
+            }
             // API key
             string API_key = txtApiKey.Text.Trim();
             // Log size
@@ -75,7 +86,7 @@ namespace ShipSoftwareBackend
                 return;
             }
 
-            int retVal = config.ValidateConfiguration(database, username, password, hostname, API_key, log_size);
+            int retVal = config.ValidateConfiguration(database, username, password, hostname, database_system, API_key, log_size);
             switch (retVal)
             {
                 case 1:
@@ -125,9 +136,17 @@ namespace ShipSoftwareBackend
                         return;
                     }
                     break;
+                case 8:
+                    MessageBox.Show("Invalid database system!", "Error");
+                    if (disableButton)
+                    {
+                        btnStart.IsEnabled = false;
+                        btnStart.ToolTip = "Choose database system to start background service.";
+                    }
+                    return;
             }
 
-            if (config.SaveConfiguration(database, username, password, hostname, API_key, log_size))
+            if (config.SaveConfiguration(database, username, password, hostname, database_system, API_key, log_size))
             {
                 MessageBox.Show("Configuration updated.", "Ok");
                 DialogResult = true;
