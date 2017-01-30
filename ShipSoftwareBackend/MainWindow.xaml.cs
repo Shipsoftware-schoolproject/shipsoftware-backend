@@ -451,8 +451,10 @@ namespace ShipSoftwareBackend
                                         string ShipRoutesID = null;
 
                                         // Ships -table: UPDATE course
-                                        using (dynamic query = sqlCommand("UPDATE Ships SET Course = " + course.ToString() + ", ShipSpeed = " + speed + " WHERE ShipID = " + ships[i][0], con))
+                                        using (dynamic query = sqlCommand("UPDATE Ships SET Course = @course, ShipSpeed = @speed WHERE ShipID = " + ships[i][0], con))
                                         {
+                                            query.Parameters.Add("@course", course.ToString());
+                                            query.Parameters.Add("@speed", speed.ToString());
                                             try
                                             {
                                                 query.ExecuteNonQuery();
@@ -464,8 +466,10 @@ namespace ShipSoftwareBackend
                                         }
 
                                         // GPS -table
-                                        using (dynamic query = sqlCommand("INSERT INTO GPS (ShipID, North, East) VALUES (" + ships[i][0] + ", " + latitude + ", " + longitude + ")", con))
+                                        using (dynamic query = sqlCommand("INSERT INTO GPS (ShipID, North, East) VALUES (" + ships[i][0] + ", @latitude, @longitude)", con))
                                         {
+                                            query.Parameters.Add("@latitude", latitude);
+                                            query.Parameters.Add("@longitude", longitude);
                                             try
                                             {
                                                 query.ExecuteNonQuery();
@@ -479,15 +483,15 @@ namespace ShipSoftwareBackend
                                         // ShipRoutes -table
                                         if (route[0] == null && route[1] != null)
                                         {
-                                            ship_route_query = "SELECT ShipRoutesID FROM ShipRoutes WHERE StartingPortID = null AND EndingPortID = (SELECT ShipPortID FROM ShipPorts WHERE Name LIKE '" + route[1] + "%')";
+                                            ship_route_query = "SELECT ShipRoutesID FROM ShipRoutes WHERE StartingPortID = @startingPort AND EndingPortID = (SELECT ShipPortID FROM ShipPorts WHERE Name LIKE @endingPort)";
                                         }
                                         else if (route[0] != null && route[1] == null)
                                         {
-                                            ship_route_query = "SELECT ShipRoutesID FROM ShipRoutes WHERE StartingPortID = (SELECT ShipPortID FROM ShipPorts WHERE Name LIKE '" + route[0] + "%') AND EndingPortID = null";
+                                            ship_route_query = "SELECT ShipRoutesID FROM ShipRoutes WHERE StartingPortID = (SELECT ShipPortID FROM ShipPorts WHERE Name LIKE @startingPort) AND EndingPortID = @endingPort";
                                         }
                                         else if (route[0] != null && route[1] != null)
                                         {
-                                            ship_route_query = "SELECT ShipRoutesID FROM ShipRoutes WHERE StartingPortID = (SELECT ShipPortID FROM ShipPorts WHERE Name LIKE '" + route[0] + "%') AND EndingPortID = (SELECT ShipPortID FROM ShipPorts WHERE Name LIKE '" + route[1] + "%')";
+                                            ship_route_query = "SELECT ShipRoutesID FROM ShipRoutes WHERE StartingPortID = (SELECT ShipPortID FROM ShipPorts WHERE Name LIKE @startingPort) AND EndingPortID = (SELECT ShipPortID FROM ShipPorts WHERE Name LIKE @endingPort)";
                                         }
                                         else
                                         {
@@ -500,6 +504,9 @@ namespace ShipSoftwareBackend
 
                                             using (dynamic query = sqlCommand(ship_route_query, con))
                                             {
+                                                query.Parameters.Add("@startingPort", route[0] != null ? route[0] + "%" : "null");
+                                                query.Parameters.Add("@endingPort", route[1] != null ? route[1] + "%" : "null");
+
                                                 try
                                                 {
                                                     using (dynamic reader = query.ExecuteReader())
@@ -511,8 +518,6 @@ namespace ShipSoftwareBackend
                                                         }
                                                         else
                                                         {
-                                                            if (route[0] == null) route[0] = "null";
-                                                            if (route[1] == null) route[1] = "null";
                                                             Log("Warn: no route \"" + route[0] + " - " + route[1] + "\" for ship \"" + name + "\"");
                                                             update = false;
                                                         }
