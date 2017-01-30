@@ -520,7 +520,8 @@ namespace ShipSoftwareBackend
                                                 }
                                                 catch
                                                 {
-                                                    Log("Error: route update query failed for ship " + name);
+                                                    Log("Error: ship route query failed for ship " + name + ". Skipping update.");
+                                                    update = false;
                                                 }
                                             }
 
