@@ -256,22 +256,8 @@ namespace ShipSoftwareBackend
         }
 
         // fetch data from API
-        string GetData(bool debug, List<List<string>> ships)
+        string GetData(List<List<string>> ships)
         {
-            if (debug)
-            {
-                // COLOMBO EXPRESS
-                //return "<xml><command>get</command><result>ok</result><what>loc</what><found>1</found><entries><entry><class>i</class><name>COLOMBO EXPRESS</name><mmsi>211433000</mmsi><type>a</type><time>1478318422</time><lasttime>1478318422</lasttime><lat>50.710462</lat><lng>-0.967245</lng><course>108.1</course><speed>25.1872</speed><srccall>DIHC</srccall><dstcall>ais</dstcall><comment>UKSOU &gt; USNYC (ETA Nov05 09:00)</comment><imo>295244</imo><vesselclass>79</vesselclass><navstat>0</navstat><heading>109</heading><length>336</length><width>42</width><draught>12.6</draught><ref_front>21</ref_front><ref_left>21</ref_left><path>M6FGP</path></entry></entries></xml>";
-                // WASA EXPRESS test with comment being only the destination
-                //return "<xml><command>get</command><result>ok</result><what>loc</what><found>1</found><entries><entry><class>i</class><name>WASA EXPRESS</name><mmsi>230636000</mmsi><type>a</type><time>1477915166</time><lasttime>1477915166</lasttime><lat>63.10701</lat><lng>21.41677</lng><course>114</course><speed>23.3352</speed><srccall>OJQB</srccall><dstcall>ais</dstcall><comment>HELSINKI (ETA Nov10 10:30)</comment><imo>8000226</imo><vesselclass>106</vesselclass><navstat>0</navstat><heading>113</heading><length>141</length><width>23</width><draught>4.6</draught><ref_front>23</ref_front><ref_left>10</ref_left><path>OH6AA</path></entry></entries></xml>";
-                // WASA Express
-                //return "<xml><command>get</command><result>ok</result><what>loc</what><found>1</found><entries><entry><class>i</class><name>WASA EXPRESS</name><mmsi>230636000</mmsi><type>a</type><time>1477915166</time><lasttime>1477915166</lasttime><lat>63.10701</lat><lng>21.41677</lng><course>114</course><speed>23.3352</speed><srccall>OJQB</srccall><dstcall>ais</dstcall><comment>VAASA-UMEA-VAASA (ETA 20161031123000)</comment><imo>8000226</imo><vesselclass>106</vesselclass><navstat>0</navstat><heading>113</heading><length>141</length><width>23</width><draught>4.6</draught><ref_front>23</ref_front><ref_left>10</ref_left><path>OH6AA</path></entry></entries></xml>";
-                // TAURUS (ship with no destination)
-                //return "<xml><command>get</command><result>ok</result><what>loc</what><found>1</found><entries><entry><class>i</class><name>TAURUS</name><mmsi>230660000</mmsi><type>a</type><time>1478782285</time><lasttime>1478782285</lasttime><lat>63.8647614</lat><lng>23.0213261</lng><course>107.2</course><speed>2.778</speed><srccall>OJRL</srccall><dstcall>ais</dstcall><comment>HARBOUR TUG CH 12</comment><imo>9261190</imo><vesselclass>52</vesselclass><navstat>0</navstat><heading>296</heading><length>23</length><width>8</width><draught>4.0</draught><ref_front>10</ref_front><ref_left>6</ref_left><path>OH6AI</path></entry></entries></xml>";
-                // Two ships, WASA EXPRESS & COLUBMO EXPRESS
-                return "<xml><command>get</command><result>ok</result><what>loc</what><found>2</found><entries><entry><class>i</class><name>WASA EXPRESS</name><mmsi>230636000</mmsi><type>a</type><time>1479212440</time><lasttime>1479212440</lasttime><lat>63.0855466666667</lat><lng>21.5493666666667</lng><course>284</course><speed>2.5928</speed><srccall>OJQB</srccall><dstcall>ais</dstcall><comment>VAASA-UMEA-VAASA (ETA 20161115123000)</comment><imo>8000226</imo><vesselclass>106</vesselclass><navstat>0</navstat><heading>218</heading><length>141</length><width>23</width><draught>4.6</draught><ref_front>23</ref_front><ref_left>10</ref_left><path>OH6AA</path></entry><entry><class>i</class><name>COLOMBO EXPRESS</name><mmsi>211433000</mmsi><type>a</type><time>1479124931</time><lasttime>1479124931</lasttime><lat>39.043765</lat><lng>-74.001985</lng><course>202.3</course><speed>13.1492</speed><srccall>DIHC</srccall><dstcall>ais</dstcall><comment>UKSOU &gt; USNYC (ETA Nov05 09:00)</comment><imo>295244</imo><vesselclass>0</vesselclass><navstat>0</navstat><heading>204</heading><length>336</length><width>42</width><draught>0.0</draught><ref_front>0</ref_front><ref_left>0</ref_left><path>Spleen</path></entry></entries></xml>";
-            }
-
             string shipsMMSI = null;
             WebClient client = new WebClient();
             Stream data = null;
@@ -370,8 +356,7 @@ namespace ShipSoftwareBackend
                         ThreadShutdown();
                         break;
                     }
-                    // debug "switch", set to false to get real data from the real API
-                    string data = GetData(false, ships);
+                    string data = GetData(ships);
 
                     if (data == null)
                     {
@@ -668,11 +653,8 @@ namespace ShipSoftwareBackend
         // menu About click event
         private void menuAbout_Click(object sender, RoutedEventArgs e)
         {
-            MessageBox.Show("Shipsoftware Backend - version " + programVer + "\n\n" +
-                            "Made for school project at VAMK\n" +
-                            "https://github.com/Shipsoftware-schoolproject\n" +
-                            "Developed by Tomi Lähteenmäki, Jori Jalkanen, Henri Schreck.\n" +
-                            "(c) 2016.", "About");
+            Window winAbout = new AboutWindow(programVer);
+            winAbout.ShowDialog();
         }
     }
 }
