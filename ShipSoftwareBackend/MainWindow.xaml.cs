@@ -18,7 +18,7 @@ namespace ShipSoftwareBackend
     /// </summary>
     public partial class MainWindow : Window
     {
-        static string programVer = "0.2.0";
+        static string programVer = "0.3.0";
         Thread apiThread;
         volatile bool threadRun = true;
         // Text colors
