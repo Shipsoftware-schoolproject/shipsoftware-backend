@@ -1,0 +1,8 @@
+{
+    "database" : "database_name",
+    "username" : "your_username",
+    "password" : "your_password",
+    "hostname" : "localhost",
+    "api_key" : "123456789012345678921",
+    "log_size" : 20
+}

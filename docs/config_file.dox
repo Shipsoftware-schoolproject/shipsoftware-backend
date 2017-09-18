@@ -1,0 +1,16 @@
+/**
+ * @page ConfigPage Configuration file
+ * @tableofcontents
+ *  This page describes configuration file structure.
+ * @section config_example Example
+ *  Example of content of @c configuration.json
+ *  @include "configuration.json.example"
+ * @section config_options Options
+ *  Here is listed all configuration parameters:
+ *  @arg @c database Name of the database
+ *  @arg @c username %Database username
+ *  @arg @c password %Database password
+ *  @arg @c hostname %Database hostname
+ *  @arg @c api_key aprs API key
+ *  @arg @c log_size How many log entries is stored in GUI. Can be omitted, defaults to @c 20.
+ */
