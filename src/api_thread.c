@@ -229,9 +229,9 @@ gpointer api_thread()
 				for (gint64 i = 0; i < entries; ++i) {
 					const gchar *name = json_read_entry_string("name", json, i); name = !name ? "" : name;
 					const gint64 mmsi = json_read_entry_int("mmsi", json, i);
-					const float latitude = json_read_entry_double("lat", json, i);
-					const float longitude = (float)json_read_entry_double("lng", json, i);
-					const gfloat course = json_read_entry_double("course", json, i);
+					const gfloat latitude = (gfloat)json_read_entry_double("lat", json, i);
+					const gfloat longitude = (gfloat)json_read_entry_double("lng", json, i);
+					const gdouble course = json_read_entry_double("course", json, i);
 					const gdouble speed = json_read_entry_double("speed", json, i);
 					const gchar *comment = json_read_entry_string("comment", json, i);
 					struct Route *route;

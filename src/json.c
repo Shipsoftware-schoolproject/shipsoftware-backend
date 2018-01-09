@@ -139,7 +139,18 @@ gdouble json_read_entry_double(gchar *member, gchar *json, gint64 index)
 	JsonNode *node;
 
 	if (_get_node_from_array(member, json, index, &node)) {
-		ret = json_node_get_double(node);
+		// ARPS.fi returns first entry as a double but subsequent entries as a "string"
+		// for: lat, lng, course; expect speed..
+		if (g_strcmp0(member, "speed") == 0) {
+			ret = json_node_get_double(node);
+		} else {
+			if (index < 1) {
+				ret = json_node_get_double(node);
+			} else {
+				const gchar *val = json_node_get_string(node);
+				ret = g_ascii_strtod(val, NULL);
+			}
+		}
 		json_node_free(node);
 	} else {
 		ret = 0;
