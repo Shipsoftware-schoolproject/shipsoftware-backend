@@ -32,7 +32,7 @@ import shutil
 # fallback if no other search path is specified in $MINGW_BUNDLEDLLS_SEARCH_PATH
 DEFAULT_PATH_PREFIXES = [
     "", "/usr/bin", "/usr/i686-w64-mingw32/sys-root/mingw/bin", "/mingw64/bin",
-    "C:\\msys64\\mingw64\\bin"
+    "/usr/x86_64-w64-mingw32/bin", "C:\\msys64\\mingw64\\bin"
 ]
 
 env_path_prefixes = os.environ.get('MINGW_BUNDLEDLLS_SEARCH_PATH', None)
@@ -44,7 +44,7 @@ else:
 # This blacklist may need extending
 blacklist = [
     "advapi32.dll", "comctl32.dll", "kernel32.dll", "msvcrt.dll", "ole32.dll",
-    "user32.dll", "ws2_32.dll", "comdlg32.dll", "gdi32.dll", "gdiplus",
+    "user32.dll", "ws2_32.dll", "comdlg32.dll", "gdi32.dll", "gdiplus.dll",
     "imm32.dll", "oleaut32.dll", "shell32.dll", "winmm.dll", "winspool.drv",
     "wldap32.dll", "ntdll.dll", "d3d9.dll", "mpr.dll", "crypt32.dll",
     "dnsapi.dll", "shlwapi.dll", "version.dll", "iphlpapi.dll", "msimg32.dll",
