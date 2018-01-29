@@ -18,12 +18,11 @@
  ****************************************************************************/
 
 #include <json-glib/json-glib.h>
-#include <glib-object.h>
 #include <string.h>
 #include "json.h"
 #include "config.h"
 
-static gboolean _get_node(gchar *member, gchar *json, JsonNode **node)
+static gboolean _get_node(const gchar *member, const gchar *json, JsonNode **node)
 {
 	gboolean ret;
 	JsonParser *parser;
@@ -50,7 +49,7 @@ static gboolean _get_node(gchar *member, gchar *json, JsonNode **node)
 	return ret;
 }
 
-static gboolean _get_node_from_array(gchar *member, gchar *json, gint64 index, JsonNode **node)
+static gboolean _get_node_from_array(const gchar *member, const gchar *json, const gint64 index, JsonNode **node)
 {
 	gboolean ret;
 	JsonParser *parser;
@@ -89,7 +88,7 @@ static gboolean _get_node_from_array(gchar *member, gchar *json, gint64 index, J
 	return ret;
 }
 
-gboolean json_read_int(gchar *member, gchar *json, gint64 *value)
+gboolean json_read_int(const gchar *member, const gchar *json, gint64 *value)
 {
 	JsonNode *node = json_node_alloc();
 
@@ -104,7 +103,7 @@ gboolean json_read_int(gchar *member, gchar *json, gint64 *value)
 	return TRUE;
 }
 
-gboolean json_read_string(gchar *member, gchar *json, gchar **value)
+gboolean json_read_string(const gchar *member, const gchar *json, gchar **value)
 {
 	JsonNode *node;
 
@@ -118,7 +117,7 @@ gboolean json_read_string(gchar *member, gchar *json, gchar **value)
 	return TRUE;
 }
 
-gint64 json_read_entry_int(gchar *member, gchar *json, gint64 index)
+gint64 json_read_entry_int(const gchar *member, const gchar *json, const gint64 index)
 {
 	gint64 ret = 0;
 	JsonNode *node;
@@ -148,7 +147,7 @@ gint64 json_read_entry_int(gchar *member, gchar *json, gint64 index)
 	return ret;
 }
 
-gdouble json_read_entry_double(gchar *member, gchar *json, gint64 index)
+gdouble json_read_entry_double(const gchar *member, const gchar *json, const gint64 index)
 {
 	gdouble ret = 0.0;
 	JsonNode *node;
@@ -182,7 +181,7 @@ gdouble json_read_entry_double(gchar *member, gchar *json, gint64 index)
 	return ret;
 }
 
-gchar *json_read_entry_string(gchar *member, gchar *json, gint64 index)
+gchar *json_read_entry_string(const gchar *member, const gchar *json, const gint64 index)
 {
 	gchar *ret = NULL;
 	JsonNode *node;
@@ -216,7 +215,7 @@ gchar *json_read_entry_string(gchar *member, gchar *json, gint64 index)
 	return ret;
 }
 
-gboolean save_json_file(struct Config *config, gchar **error)
+gboolean save_json_file(const struct Config *config, gchar **error)
 {
 	gboolean ret;
 	GError *_error;

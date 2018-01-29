@@ -37,11 +37,11 @@
  * Holds all configuration properties
  */
 struct Config {
-	const char *db_name; /**< Name of the database */
-	const char *db_username; /**< Username to used to connect to the database */
-	const char *db_password; /**< Password for the database user */
-	const char *db_hostname; /**< Hostname of the database */
-	const char *api_key; /**< aprs.fi API key */
+	const gchar *db_name; /**< Name of the database */
+	const gchar *db_username; /**< Username to used to connect to the database */
+	const gchar *db_password; /**< Password for the database user */
+	const gchar *db_hostname; /**< Hostname of the database */
+	const gchar *api_key; /**< aprs.fi API key */
 	gint64 log_size; /**< Number of rows to keep in GUI listbox */
 };
 
@@ -71,7 +71,7 @@ gboolean load_config(struct Config *config, gchar **contents, gchar **error);
  * from @c contents, otherwise FALSE
  * @note Struct config() properties should be valited with validate_config()
  */
-gboolean parse_config(struct Config *config, gchar *contents, gchar **error);
+gboolean parse_config(struct Config *config, const gchar *contents, gchar **error);
 
 /**
  * @brief Validates properties of @c config
@@ -82,8 +82,9 @@ gboolean parse_config(struct Config *config, gchar *contents, gchar **error);
  * @param[out] error Pointer to ghcar where to store error message
  * @return gboolean TRUE if all properties are valid, otherwise FALSE
  */
-gboolean validate_config(struct Config *config, gchar **error);
+gboolean validate_config(const struct Config *config, gchar **error);
 
+#ifdef WITH_GUI
 /**
  * @brief Saves configuration to file
  *
@@ -93,6 +94,7 @@ gboolean validate_config(struct Config *config, gchar **error);
  * @param[out] error Pointer to ghcar where to store error message
  * @return gboolean TRUE if configuration was saved, otherwise FALSE
  */
-gboolean save_config(struct Config *config, gchar **error);
+gboolean save_config(const struct Config *config, gchar **error);
+#endif
 
 #endif

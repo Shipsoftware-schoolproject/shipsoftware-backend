@@ -43,7 +43,7 @@ gboolean load_config(struct Config *config, gchar **contents, gchar **error)
     return TRUE;
 }
 
-gboolean parse_config(struct Config *config, gchar *contents, gchar **error)
+gboolean parse_config(struct Config *config, const gchar *contents, gchar **error)
 {
     gchar *ret;
     gchar *database;
@@ -102,7 +102,7 @@ gboolean parse_config(struct Config *config, gchar *contents, gchar **error)
     return TRUE;
 }
 
-gboolean validate_config(struct Config *config, gchar **error)
+gboolean validate_config(const struct Config *config, gchar **error)
 {
     char *ret;
 
@@ -134,7 +134,7 @@ gboolean validate_config(struct Config *config, gchar **error)
     return TRUE;
 }
 
-gboolean save_config(struct Config *config, gchar **error)
+gboolean save_config(const struct Config *config, gchar **error)
 {
     gboolean ret;
 

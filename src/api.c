@@ -34,7 +34,7 @@ struct MemoryStruct {
   size_t size; /**< Memory size */
 };
 
-static size_t copy_to_memory(void *contents, size_t size, size_t nmemb, void *userp)
+static size_t copy_to_memory(const void *contents, const size_t size, const size_t nmemb, void *userp)
 {
   size_t realsize = size * nmemb;
   struct MemoryStruct *mem = (struct MemoryStruct *)userp;
@@ -51,7 +51,7 @@ static size_t copy_to_memory(void *contents, size_t size, size_t nmemb, void *us
   return realsize;
 }
 
-gboolean api_get_loc(gchar *name, const gchar *api_key, gchar **data, gchar **error)
+gboolean api_get_loc(const gchar *name, const gchar *api_key, gchar **data, gchar **error)
 {
 	struct MemoryStruct chunk;
 	CURL *curl;

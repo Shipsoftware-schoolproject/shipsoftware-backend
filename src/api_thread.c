@@ -31,13 +31,12 @@
 
 int RUNNING = 0;
 
-static gchar *_substring(const gchar *text, gint64 offset, gint64 len)
+static gchar *_substring(const gchar *text, gint64 offset, gsize len)
 {
-	gchar *ret;
+	gchar *ret = NULL;
 	gint64 text_len;
 	gchar *tmp;
 
-	ret = NULL;
 	text_len = strlen(text);
 
 	if ((offset + len) > text_len) {
@@ -132,7 +131,7 @@ void log_error(gpointer message)
 #endif
 }
 
-static gboolean api_check_result(gchar *json)
+static gboolean api_check_result(const gchar *json)
 {
 	gboolean ret = FALSE;
 	gchar *result;

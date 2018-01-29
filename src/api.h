@@ -44,6 +44,6 @@
  * stays uninitialized if it was uninitialized before calling this function.
  * @note @p data should be freed with g_free() after it's not needed anymore.
  */
-gboolean api_get_loc(gchar *name, const gchar *api_key, gchar **data, gchar **error);
+gboolean api_get_loc(const gchar *name, const gchar *api_key, gchar **data, gchar **error);
 
 #endif

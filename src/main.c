@@ -22,7 +22,6 @@
 	#include "main_window.h"
 	#include "dialogs.h"
 #else
-	#include <stdio.h>
 	#include <glib.h>
 	#include <string.h>
 	#include "config.h"
@@ -56,7 +55,7 @@ static void print_help()
 
 int main(int argc, char *argv[])
 {
-	gint status;
+	gint status = 0;
 
 #ifdef WITH_GUI
 	GtkApplication *app;

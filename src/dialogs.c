@@ -37,7 +37,6 @@ void show_about_dialog(gpointer parent)
 	website_label = "Source at Github";
 	website = "https://github.com/Shipsoftware-schoolproject";
 
-	// FIXME: Logo
 	gtk_about_dialog_set_program_name(GTK_ABOUT_DIALOG(dialog), program_name);
 	gtk_about_dialog_set_version(GTK_ABOUT_DIALOG(dialog), ShipSoftwareBackend_VERSION);
 	gtk_about_dialog_set_copyright(GTK_ABOUT_DIALOG(dialog), copyright);

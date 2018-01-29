@@ -42,7 +42,7 @@ extern struct Config *config;
  * @param[out] value Pointer to gint where to store the value
  * @return gboolean TRUE if value was read successfully, otherwise FALSE
  */
-gboolean json_read_int(gchar *member, gchar *json, gint64 *value);
+gboolean json_read_int(const gchar *const member, const gchar *json, gint64 *value);
 
 /**
  * Read GCHAR from member
@@ -52,7 +52,7 @@ gboolean json_read_int(gchar *member, gchar *json, gint64 *value);
  * @param[out] value Pointer to gchar where to store the value
  * @return gboolean TRUE if value was read successfully, otherwise FALSE
  */
-gboolean json_read_string(gchar *member, gchar *json, gchar **value);
+gboolean json_read_string(const gchar *member, const gchar *json, gchar **value);
 
 /**
  * Read INT value from @c json @c member in "entries" array @c index
@@ -62,7 +62,7 @@ gboolean json_read_string(gchar *member, gchar *json, gchar **value);
  * @param[in] index Index in the array
  * @return gint64
  */
-gint64 json_read_entry_int(gchar *member, gchar *json, gint64 index);
+gint64 json_read_entry_int(const gchar *member, const gchar *json, const gint64 index);
 
 /**
  * Read DOUBLE value from @c json @c member in "entries" array @c index
@@ -71,8 +71,10 @@ gint64 json_read_entry_int(gchar *member, gchar *json, gint64 index);
  * @param[in] json JSON which to read
  * @param[in] index Index in the array
  * @return gdouble
+ *
+ * @note Use only to parse API response!
  */
-gdouble json_read_entry_double(gchar *member, gchar *json, gint64 index);
+gdouble json_read_entry_double(const gchar *member, const gchar *json, const gint64 index);
 
 /**
  * Read STRING value from @c json @c member in "entries" array @c index
@@ -81,8 +83,10 @@ gdouble json_read_entry_double(gchar *member, gchar *json, gint64 index);
  * @param[in] json JSON which to read
  * @param[in] index Index in the array
  * @return gchar*
+ *
+ * @note Use only to parse API response!
  */
-gchar *json_read_entry_string(gchar *member, gchar *json, gint64 index);
+gchar *json_read_entry_string(const gchar *member, const gchar *json, const gint64 index);
 
 /**
  * Save config struct to file
@@ -91,6 +95,6 @@ gchar *json_read_entry_string(gchar *member, gchar *json, gint64 index);
  * @param[out] error Pointer to gchar to store error message
  * @return gboolean
  */
-gboolean save_json_file(struct Config *config, gchar **error);
+gboolean save_json_file(const struct Config *config, gchar **error);
 
 #endif

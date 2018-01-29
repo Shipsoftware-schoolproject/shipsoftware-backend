@@ -18,7 +18,6 @@
  ****************************************************************************/
 
 #include <glib-object.h>
-#include <gdk/gdkkeysyms.h>
 #include "main_window.h"
 #include "api_thread.h"
 #include "dialogs.h"

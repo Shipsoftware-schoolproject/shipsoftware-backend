@@ -61,7 +61,7 @@ struct Route {
  * @param[out] error Pointer to gchar to store error message
  * @return gboolean Returns TRUE on success, otherwise FALSE
  */
-gboolean db_init(struct Database *db, struct Config *config, gchar **error);
+gboolean db_init(struct Database *db, const struct Config *config, gchar **error);
 
 /**
  * Close connection
@@ -81,7 +81,7 @@ void db_close_con(struct Database *db);
  * @param[out] error Pointer to gchar where to store error message
  * @return gboolean Returns TRUE on success, otherwise FALSE
  */
-gboolean db_get_ships(struct Database *db, gchar **ships, gchar **error);
+gboolean db_get_ships(const struct Database *db, gchar **ships, gchar **error);
 
 /**
  * Update ship Course and Speed
@@ -93,7 +93,7 @@ gboolean db_get_ships(struct Database *db, gchar **ships, gchar **error);
  * @param[out] error Pointer to gchar where to store error message
  * @return gboolean Returns TRUE on success, otherwise FALSE
  */
-gboolean db_update_ship_course_speed(struct Database *db, const gfloat course, const gdouble speed, const gint64 mmsi, gchar **error);
+gboolean db_update_ship_course_speed(const struct Database *db, const gfloat course, const gdouble speed, const gint64 mmsi, gchar **error);
 
 /**
  * Update GPS location in GPS table
@@ -105,7 +105,7 @@ gboolean db_update_ship_course_speed(struct Database *db, const gfloat course, c
  * @param[out] error Pointer to gchar where to store error message
  * @return gboolean Returns TRUE on success, otherwise FALSE
  */
-gboolean db_update_gps_location(struct Database *db, const gfloat latitude,
+gboolean db_update_gps_location(const struct Database *db, const gfloat latitude,
 								const gfloat longitude, const gint64 mmsi,
 								gchar **error);
 
@@ -120,7 +120,7 @@ gboolean db_update_gps_location(struct Database *db, const gfloat latitude,
  * @param[out] error Pointer to gchar where to store error message
  * @return gboolean Returns TRUE on success, otherwise FALSE
  */
-gboolean db_get_route_id(struct Database *db, struct Route *route, gchar **error);
+gboolean db_get_route_id(const struct Database *db, struct Route *route, gchar **error);
 
 /**
  * Update ship current route
@@ -131,6 +131,6 @@ gboolean db_get_route_id(struct Database *db, struct Route *route, gchar **error
  * @param[out] error Pointer to gchar where to store error message
  * @return gboolean Returns TRUE on success, otherwise FALSE
  */
-gboolean db_update_route(struct Database *db, gint64 id, gint64 mmsi, gchar **error);
+gboolean db_update_route(const struct Database *db, gint64 id, const gint64 mmsi, gchar **error);
 
 #endif
