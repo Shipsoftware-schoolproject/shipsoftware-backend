@@ -1,20 +1,20 @@
 /****************************************************************************
- * Copyright (c) 2017 Tomi Lähteenmäki <lihis@lihis.net>                	*
+ * Copyright (c) 2018 Tomi Lähteenmäki <lihis@lihis.net>                    *
  *                                                                          *
- * This program is free software; you can redistribute it and/or modify 	*
- * it under the terms of the GNU General Public License as published by 	*
- * the Free Software Foundation; either version 2 of the License, or    	*
- * (at your option) any later version.                                  	*
+ * This program is free software; you can redistribute it and/or modify     *
+ * it under the terms of the GNU General Public License as published by     *
+ * the Free Software Foundation; either version 2 of the License, or        *
+ * (at your option) any later version.                                      *
  *                                                                          *
- * This program is distributed in the hope that it will be useful,      	*
- * but WITHOUT ANY WARRANTY; without even the implied warranty of       	*
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the        	*
- * GNU General Public License for more details.                         	*
+ * This program is distributed in the hope that it will be useful,          *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of           *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the            *
+ * GNU General Public License for more details.                             *
  *                                                                          *
- * You should have received a copy of the GNU General Public License    	*
- * along with this program; if not, write to the Free Software          	*
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,           	*
- * MA 02110-1301, USA.                                                  	*
+ * You should have received a copy of the GNU General Public License        *
+ * along with this program; if not, write to the Free Software              *
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,               *
+ * MA 02110-1301, USA.                                                      *
  ****************************************************************************/
 
 #include <glib-object.h>
@@ -23,16 +23,24 @@
 #include "database.h"
 #include "config.h"
 
-gboolean db_init(struct Database *db, const struct Config *config, gchar **error)
+gboolean db_init(struct Database *db, const struct Config *config,
+		 gchar **error)
 {
 	db->con = mysql_init(NULL);
 
-	if (mysql_real_connect(db->con, config->db_hostname, config->db_username, config->db_password, NULL, 0, NULL, 0) == NULL) {
-		*(error) = g_strconcat("Connection failed: ", mysql_error(db->con), NULL);
+	if (mysql_real_connect(db->con, config->db_hostname,
+			       config->db_username, config->db_password,
+			       NULL, 0, NULL, 0) == NULL)
+	{
+		*(error) = g_strconcat("Connection failed: ",
+				       mysql_error(db->con), NULL);
 		return FALSE;
 	} else {
-		if (mysql_query(db->con, g_strconcat("USE ", config->db_name, NULL))) {
-			*(error) = g_strconcat("Failed to select database: ", mysql_error(db->con), NULL);
+		if (mysql_query(db->con, g_strconcat("USE ", config->db_name,
+						     NULL)))
+		{
+			*(error) = g_strconcat("Failed to select database: ",
+					       mysql_error(db->con), NULL);
 			return FALSE;
 		}
 	}
@@ -57,12 +65,14 @@ gboolean db_get_ships(const struct Database *db, gchar **ships, gchar **error)
 	_ships = NULL;
 
 	if (mysql_query(db->con, query)) {
-		*(error) = g_strconcat("query failed: ", mysql_error(db->con), NULL);
+		*(error) = g_strconcat("query failed: ", mysql_error(db->con),
+				       NULL);
 	} else {
 		result = mysql_store_result(db->con);
 
 		if (!result) {
-			*(error) = g_strconcat("couldn't get result set: ", mysql_error(db->con), NULL);
+			*(error) = g_strconcat("couldn't get result set: ",
+					       mysql_error(db->con), NULL);
 		} else {
 			guint64 num_rows = mysql_num_rows(result);
 
@@ -74,7 +84,10 @@ gboolean db_get_ships(const struct Database *db, gchar **ships, gchar **error)
 					if (_ships == NULL) {
 						_ships = row[0];
 					} else {
-						_ships = g_strconcat(_ships, ",", row[0], NULL);
+						_ships = g_strconcat(_ships,
+								     ",",
+								     row[0],
+								     NULL);
 					}
 				}
 				*(ships) = g_strdup(_ships);
@@ -88,9 +101,9 @@ gboolean db_get_ships(const struct Database *db, gchar **ships, gchar **error)
 	return ret;
 }
 
-gboolean db_update_ship_course_speed(const struct Database *db, const gfloat course,
-									 const gdouble speed, const gint64 mmsi,
-									 gchar **error)
+gboolean db_update_ship_course_speed(const struct Database *db,
+				     const gfloat course, const gdouble speed,
+				     const gint64 mmsi, gchar **error)
 {
 	gboolean ret;
 	gchar *query;
@@ -107,7 +120,8 @@ gboolean db_update_ship_course_speed(const struct Database *db, const gfloat cou
 	}
 
 	if (mysql_stmt_prepare(stmt, query, strlen(query))) {
-		*(error) = g_strconcat("query prepare failed, " , mysql_stmt_error(stmt), NULL);
+		*(error) = g_strconcat("query prepare failed, " ,
+				       mysql_stmt_error(stmt), NULL);
 	} else {
 		memset(bind, 0, sizeof(bind));
 		bind[0].buffer_type = MYSQL_TYPE_FLOAT;
@@ -142,7 +156,7 @@ gboolean db_update_ship_course_speed(const struct Database *db, const gfloat cou
 }
 
 static gboolean _get_ship_id(const struct Database *db, const gint64 mmsi,
-							 gint32 *ship_id, gchar **error)
+			     gint32 *ship_id, gchar **error)
 {
 	gboolean ret;
 	const gchar *query;
@@ -160,7 +174,8 @@ static gboolean _get_ship_id(const struct Database *db, const gint64 mmsi,
 	}
 
 	if (mysql_stmt_prepare(stmt, query, strlen(query))) {
-		*(error) = g_strconcat("query prepare failed: " , mysql_stmt_error(stmt), NULL);
+		*(error) = g_strconcat("query prepare failed: " ,
+				       mysql_stmt_error(stmt), NULL);
 	} else {
 		memset(bind, 0, sizeof(bind));
 		bind[0].buffer_type = MYSQL_TYPE_LONG;
@@ -204,8 +219,8 @@ static gboolean _get_ship_id(const struct Database *db, const gint64 mmsi,
 }
 
 gboolean db_update_gps_location(const struct Database *db, const gfloat latitude,
-								const gfloat longitude, const gint64 mmsi,
-								gchar **error)
+				const gfloat longitude, const gint64 mmsi,
+				gchar **error)
 {
 	gboolean ret;
 	const gchar *query;
@@ -228,7 +243,8 @@ gboolean db_update_gps_location(const struct Database *db, const gfloat latitude
 	}
 
 	if (mysql_stmt_prepare(stmt, query, strlen(query))) {
-		*(error) = g_strconcat("query prepare failed: " , mysql_stmt_error(stmt), NULL);
+		*(error) = g_strconcat("query prepare failed: " ,
+				       mysql_stmt_error(stmt), NULL);
 	} else {
 		memset(bind, 0, sizeof(bind));
 		bind[0].buffer_type = MYSQL_TYPE_LONG;
@@ -280,7 +296,8 @@ gboolean db_update_gps_location(const struct Database *db, const gfloat latitude
 		}
 
 		if (mysql_stmt_prepare(stmt, count_query, strlen(count_query))) {
-			*(error) = g_strconcat("query prepare failed: " , mysql_stmt_error(stmt), NULL);
+			*(error) = g_strconcat("query prepare failed: " ,
+					       mysql_stmt_error(stmt), NULL);
 		} else {
 			memset(result, 0, sizeof(result));
 			result[0].buffer_type = MYSQL_TYPE_LONG;
@@ -348,7 +365,8 @@ gboolean db_update_gps_location(const struct Database *db, const gfloat latitude
 	return ret;
 }
 
-gboolean db_get_route_id(const struct Database *db, struct Route *route, gchar **error)
+gboolean db_get_route_id(const struct Database *db, struct Route *route,
+			 gchar **error)
 {
 	gboolean ret;
 	gchar *query;
@@ -366,7 +384,9 @@ gboolean db_get_route_id(const struct Database *db, struct Route *route, gchar *
 		*(error) = g_strdup("missing destination port");
 		return FALSE;
 	} else if (route->departure != NULL && route->destination != NULL) {
-		query = "SELECT ShipRoutesID FROM ShipRoutes WHERE StartingPortID = (SELECT ShipPortID FROM ShipPorts WHERE Name LIKE ?) AND EndingPortID = (SELECT ShipPortID FROM ShipPorts WHERE Name LIKE ?)";
+		query = "SELECT ShipRoutesID FROM ShipRoutes WHERE "
+			"StartingPortID = (SELECT ShipPortID FROM ShipPorts WHERE Name LIKE ?) "
+			"AND EndingPortID = (SELECT ShipPortID FROM ShipPorts WHERE Name LIKE ?)";
 	} else {
 		*(error) = g_strdup("no departure nor destination port");
 		return FALSE;
@@ -383,11 +403,11 @@ gboolean db_get_route_id(const struct Database *db, struct Route *route, gchar *
 	} else {
 		memset(bind, 0, sizeof(bind));
 		bind[0].buffer_type = MYSQL_TYPE_STRING;
-		bind[0].buffer = (char *)route->departure;
+		bind[0].buffer = route->departure;
 		bind[0].buffer_length = strlen(route->departure);
 
 		bind[1].buffer_type = MYSQL_TYPE_STRING;
-		bind[1].buffer = (char *)route->destination;
+		bind[1].buffer = route->destination;
 		bind[1].buffer_length = strlen(route->destination);
 
 		memset(result, 0, sizeof(result));
@@ -427,13 +447,14 @@ gboolean db_get_route_id(const struct Database *db, struct Route *route, gchar *
 	return ret;
 }
 
-gboolean db_update_route(const struct Database *db, const gint64 id, const gint64 mmsi, gchar **error)
+gboolean db_update_route(const struct Database *db, const gint64 id,
+			 const gint64 mmsi, gchar **error)
 {
 	const gchar *query;
 
 	query = g_strconcat("UPDATE Ships SET ShipRoutesID = ",
-						g_strdup_printf("%" G_GINT64_FORMAT, id),
-						" WHERE MMSI = ", g_strdup_printf("%" G_GINT64_FORMAT, mmsi), NULL);
+			    g_strdup_printf("%" G_GINT64_FORMAT, id),
+			    " WHERE MMSI = ", g_strdup_printf("%" G_GINT64_FORMAT, mmsi), NULL);
 	if (mysql_query(db->con, query)) {
 		*(error) = g_strconcat("query failed: ", mysql_error(db->con), NULL);
 		return FALSE;

@@ -1,20 +1,20 @@
 /****************************************************************************
- * Copyright (c) 2017 Tomi Lähteenmäki <lihis@lihis.net>                	*
+ * Copyright (c) 2018 Tomi Lähteenmäki <lihis@lihis.net>                    *
  *                                                                          *
- * This program is free software; you can redistribute it and/or modify 	*
- * it under the terms of the GNU General Public License as published by 	*
- * the Free Software Foundation; either version 2 of the License, or    	*
- * (at your option) any later version.                                  	*
+ * This program is free software; you can redistribute it and/or modify     *
+ * it under the terms of the GNU General Public License as published by     *
+ * the Free Software Foundation; either version 2 of the License, or        *
+ * (at your option) any later version.                                      *
  *                                                                          *
- * This program is distributed in the hope that it will be useful,      	*
- * but WITHOUT ANY WARRANTY; without even the implied warranty of       	*
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the        	*
- * GNU General Public License for more details.                         	*
+ * This program is distributed in the hope that it will be useful,          *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of           *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the            *
+ * GNU General Public License for more details.                             *
  *                                                                          *
- * You should have received a copy of the GNU General Public License    	*
- * along with this program; if not, write to the Free Software          	*
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,           	*
- * MA 02110-1301, USA.                                                  	*
+ * You should have received a copy of the GNU General Public License        *
+ * along with this program; if not, write to the Free Software              *
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,               *
+ * MA 02110-1301, USA.                                                      *
  ****************************************************************************/
 
 #include <json-glib/json-glib.h>
@@ -22,7 +22,8 @@
 #include "json.h"
 #include "config.h"
 
-static gboolean _get_node(const gchar *member, const gchar *json, JsonNode **node)
+static gboolean _get_node(const gchar *member, const gchar *json,
+			  JsonNode **node)
 {
 	gboolean ret;
 	JsonParser *parser;
@@ -49,7 +50,8 @@ static gboolean _get_node(const gchar *member, const gchar *json, JsonNode **nod
 	return ret;
 }
 
-static gboolean _get_node_from_array(const gchar *member, const gchar *json, const gint64 index, JsonNode **node)
+static gboolean _get_node_from_array(const gchar *member, const gchar *json,
+				     const gint64 index, JsonNode **node)
 {
 	gboolean ret;
 	JsonParser *parser;
@@ -117,7 +119,8 @@ gboolean json_read_string(const gchar *member, const gchar *json, gchar **value)
 	return TRUE;
 }
 
-gint64 json_read_entry_int(const gchar *member, const gchar *json, const gint64 index)
+gint64 json_read_entry_int(const gchar *member, const gchar *json,
+			   const gint64 index)
 {
 	gint64 ret = 0;
 	JsonNode *node;
@@ -136,7 +139,8 @@ gint64 json_read_entry_int(const gchar *member, const gchar *json, const gint64 
 				ret = json_node_get_int(node);
 				break;
 			case G_TYPE_STRING:
-				ret = g_ascii_strtoll(json_node_get_string(node), NULL, 10);
+				ret = g_ascii_strtoll(json_node_get_string(node),
+						      NULL, 10);
 				break;
 			default:
 				break;
@@ -147,7 +151,8 @@ gint64 json_read_entry_int(const gchar *member, const gchar *json, const gint64 
 	return ret;
 }
 
-gdouble json_read_entry_double(const gchar *member, const gchar *json, const gint64 index)
+gdouble json_read_entry_double(const gchar *member, const gchar *json,
+			       const gint64 index)
 {
 	gdouble ret = 0.0;
 	JsonNode *node;
@@ -170,7 +175,8 @@ gdouble json_read_entry_double(const gchar *member, const gchar *json, const gin
 				ret = json_node_get_double(node);
 				break;
 			case G_TYPE_STRING:
-				ret = g_ascii_strtod(json_node_get_string(node), NULL);
+				ret = g_ascii_strtod(json_node_get_string(node),
+						     NULL);
 				break;
 			default:
 				break;
@@ -181,7 +187,8 @@ gdouble json_read_entry_double(const gchar *member, const gchar *json, const gin
 	return ret;
 }
 
-gchar *json_read_entry_string(const gchar *member, const gchar *json, const gint64 index)
+gchar *json_read_entry_string(const gchar *member, const gchar *json,
+			      const gint64 index)
 {
 	gchar *ret = NULL;
 	JsonNode *node;
@@ -197,11 +204,13 @@ gchar *json_read_entry_string(const gchar *member, const gchar *json, const gint
 			case G_TYPE_ULONG:
 			case G_TYPE_INT64:
 			case G_TYPE_UINT64:
-				ret = g_strdup_printf("%" G_GUINT64_FORMAT, json_node_get_int(node));
+				ret = g_strdup_printf("%" G_GUINT64_FORMAT,
+						      json_node_get_int(node));
 				break;
 			case G_TYPE_FLOAT:
 			case G_TYPE_DOUBLE:
-				ret = g_strdup_printf("%f", json_node_get_double(node));
+				ret = g_strdup_printf("%f",
+						      json_node_get_double(node));
 				break;
 			case G_TYPE_STRING:
 				ret = g_strdup(json_node_get_string(node));

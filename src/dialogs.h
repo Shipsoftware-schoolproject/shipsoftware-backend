@@ -1,20 +1,20 @@
 /****************************************************************************
- * Copyright (c) 2017 Tomi Lähteenmäki <lihis@lihis.net>                	*
+ * Copyright (c) 2018 Tomi Lähteenmäki <lihis@lihis.net>                    *
  *                                                                          *
- * This program is free software; you can redistribute it and/or modify 	*
- * it under the terms of the GNU General Public License as published by 	*
- * the Free Software Foundation; either version 2 of the License, or    	*
- * (at your option) any later version.                                  	*
+ * This program is free software; you can redistribute it and/or modify     *
+ * it under the terms of the GNU General Public License as published by     *
+ * the Free Software Foundation; either version 2 of the License, or        *
+ * (at your option) any later version.                                      *
  *                                                                          *
- * This program is distributed in the hope that it will be useful,      	*
- * but WITHOUT ANY WARRANTY; without even the implied warranty of       	*
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the        	*
- * GNU General Public License for more details.                         	*
+ * This program is distributed in the hope that it will be useful,          *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of           *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the            *
+ * GNU General Public License for more details.                             *
  *                                                                          *
- * You should have received a copy of the GNU General Public License    	*
- * along with this program; if not, write to the Free Software          	*
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,           	*
- * MA 02110-1301, USA.                                                  	*
+ * You should have received a copy of the GNU General Public License        *
+ * along with this program; if not, write to the Free Software              *
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,               *
+ * MA 02110-1301, USA.                                                      *
  ****************************************************************************/
 
 /**
@@ -56,7 +56,8 @@ void show_about_dialog(gpointer parent);
  * @param[in] message Dialogs content
  * @return int GTK_RESPONSE_*
  */
-int show_yesno_dialog(GtkWidget *parent, const char *title, const char *message);
+int show_yesno_dialog(GtkWidget *parent, const char *title,
+		      const char *message);
 
 /**
  * @brief Show dialog with OK button

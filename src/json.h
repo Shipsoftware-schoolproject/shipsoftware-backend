@@ -1,20 +1,20 @@
 /****************************************************************************
- * Copyright (c) 2017 Tomi Lähteenmäki <lihis@lihis.net>                	*
+ * Copyright (c) 2018 Tomi Lähteenmäki <lihis@lihis.net>                    *
  *                                                                          *
- * This program is free software; you can redistribute it and/or modify 	*
- * it under the terms of the GNU General Public License as published by 	*
- * the Free Software Foundation; either version 2 of the License, or    	*
- * (at your option) any later version.                                  	*
+ * This program is free software; you can redistribute it and/or modify     *
+ * it under the terms of the GNU General Public License as published by     *
+ * the Free Software Foundation; either version 2 of the License, or        *
+ * (at your option) any later version.                                      *
  *                                                                          *
- * This program is distributed in the hope that it will be useful,      	*
- * but WITHOUT ANY WARRANTY; without even the implied warranty of       	*
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the        	*
- * GNU General Public License for more details.                         	*
+ * This program is distributed in the hope that it will be useful,          *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of           *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the            *
+ * GNU General Public License for more details.                             *
  *                                                                          *
- * You should have received a copy of the GNU General Public License    	*
- * along with this program; if not, write to the Free Software          	*
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,           	*
- * MA 02110-1301, USA.                                                  	*
+ * You should have received a copy of the GNU General Public License        *
+ * along with this program; if not, write to the Free Software              *
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,               *
+ * MA 02110-1301, USA.                                                      *
  ****************************************************************************/
 
 /**
@@ -42,7 +42,8 @@ extern struct Config *config;
  * @param[out] value Pointer to gint where to store the value
  * @return gboolean TRUE if value was read successfully, otherwise FALSE
  */
-gboolean json_read_int(const gchar *const member, const gchar *json, gint64 *value);
+gboolean json_read_int(const gchar *const member, const gchar *json,
+		       gint64 *value);
 
 /**
  * Read GCHAR from member
@@ -52,7 +53,8 @@ gboolean json_read_int(const gchar *const member, const gchar *json, gint64 *val
  * @param[out] value Pointer to gchar where to store the value
  * @return gboolean TRUE if value was read successfully, otherwise FALSE
  */
-gboolean json_read_string(const gchar *member, const gchar *json, gchar **value);
+gboolean json_read_string(const gchar *member, const gchar *json,
+			  gchar **value);
 
 /**
  * Read INT value from @c json @c member in "entries" array @c index
@@ -62,7 +64,8 @@ gboolean json_read_string(const gchar *member, const gchar *json, gchar **value)
  * @param[in] index Index in the array
  * @return gint64
  */
-gint64 json_read_entry_int(const gchar *member, const gchar *json, const gint64 index);
+gint64 json_read_entry_int(const gchar *member, const gchar *json,
+			   const gint64 index);
 
 /**
  * Read DOUBLE value from @c json @c member in "entries" array @c index
@@ -74,7 +77,8 @@ gint64 json_read_entry_int(const gchar *member, const gchar *json, const gint64 
  *
  * @note Use only to parse API response!
  */
-gdouble json_read_entry_double(const gchar *member, const gchar *json, const gint64 index);
+gdouble json_read_entry_double(const gchar *member, const gchar *json,
+			       const gint64 index);
 
 /**
  * Read STRING value from @c json @c member in "entries" array @c index
@@ -86,7 +90,8 @@ gdouble json_read_entry_double(const gchar *member, const gchar *json, const gin
  *
  * @note Use only to parse API response!
  */
-gchar *json_read_entry_string(const gchar *member, const gchar *json, const gint64 index);
+gchar *json_read_entry_string(const gchar *member, const gchar *json,
+			      const gint64 index);
 
 /**
  * Save config struct to file

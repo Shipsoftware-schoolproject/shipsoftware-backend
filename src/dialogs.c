@@ -1,20 +1,20 @@
 /****************************************************************************
- * Copyright (c) 2017 Tomi Lähteenmäki <lihis@lihis.net>                	*
+ * Copyright (c) 2018 Tomi Lähteenmäki <lihis@lihis.net>                    *
  *                                                                          *
- * This program is free software; you can redistribute it and/or modify 	*
- * it under the terms of the GNU General Public License as published by 	*
- * the Free Software Foundation; either version 2 of the License, or    	*
- * (at your option) any later version.                                  	*
+ * This program is free software; you can redistribute it and/or modify     *
+ * it under the terms of the GNU General Public License as published by     *
+ * the Free Software Foundation; either version 2 of the License, or        *
+ * (at your option) any later version.                                      *
  *                                                                          *
- * This program is distributed in the hope that it will be useful,      	*
- * but WITHOUT ANY WARRANTY; without even the implied warranty of       	*
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the        	*
- * GNU General Public License for more details.                         	*
+ * This program is distributed in the hope that it will be useful,          *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of           *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the            *
+ * GNU General Public License for more details.                             *
  *                                                                          *
- * You should have received a copy of the GNU General Public License    	*
- * along with this program; if not, write to the Free Software          	*
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,           	*
- * MA 02110-1301, USA.                                                  	*
+ * You should have received a copy of the GNU General Public License        *
+ * along with this program; if not, write to the Free Software              *
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,               *
+ * MA 02110-1301, USA.                                                      *
  ****************************************************************************/
 
 #include "dialogs.h"
@@ -32,7 +32,7 @@ void show_about_dialog(gpointer parent)
 
 	dialog = gtk_about_dialog_new();
 	program_name = "ShipSoftware-backend";
-	copyright = "Copyright \xc2\xa9 2017 Tomi Lähteenmäki, Jori Jalkanen";
+	copyright = "Copyright \xc2\xa9 2018 Tomi Lähteenmäki, Jori Jalkanen";
 	comment = "School project made in VAMK.";
 	website_label = "Source at Github";
 	website = "https://github.com/Shipsoftware-schoolproject";
@@ -60,7 +60,9 @@ int show_yesno_dialog(GtkWidget *parent, const char *title, const char *message)
 	GtkWidget *dialog;
 
 	flags = GTK_DIALOG_DESTROY_WITH_PARENT;
-	dialog = gtk_message_dialog_new(GTK_WINDOW(parent), flags, GTK_MESSAGE_ERROR, GTK_BUTTONS_YES_NO, message);
+	dialog = gtk_message_dialog_new(GTK_WINDOW(parent), flags,
+					GTK_MESSAGE_ERROR, GTK_BUTTONS_YES_NO,
+					message);
 
 	gtk_window_set_title(GTK_WINDOW(dialog), title);
 
@@ -76,7 +78,9 @@ void show_ok_dialog(GtkWidget *parent, const char *title, const char *message)
 	GtkWidget *dialog;
 
 	flags = GTK_DIALOG_DESTROY_WITH_PARENT;
-	dialog = gtk_message_dialog_new(GTK_WINDOW(parent), flags, GTK_MESSAGE_ERROR, GTK_BUTTONS_OK, message);
+	dialog = gtk_message_dialog_new(GTK_WINDOW(parent), flags,
+					GTK_MESSAGE_ERROR, GTK_BUTTONS_OK,
+					message);
 
 	gtk_window_set_title(GTK_WINDOW(dialog), title);
 

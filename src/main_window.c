@@ -1,20 +1,20 @@
 /****************************************************************************
- * Copyright (c) 2017 Tomi Lähteenmäki <lihis@lihis.net>                	*
+ * Copyright (c) 2018 Tomi Lähteenmäki <lihis@lihis.net>                    *
  *                                                                          *
- * This program is free software; you can redistribute it and/or modify 	*
- * it under the terms of the GNU General Public License as published by 	*
- * the Free Software Foundation; either version 2 of the License, or    	*
- * (at your option) any later version.                                  	*
+ * This program is free software; you can redistribute it and/or modify     *
+ * it under the terms of the GNU General Public License as published by     *
+ * the Free Software Foundation; either version 2 of the License, or        *
+ * (at your option) any later version.                                      *
  *                                                                          *
- * This program is distributed in the hope that it will be useful,      	*
- * but WITHOUT ANY WARRANTY; without even the implied warranty of       	*
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the        	*
- * GNU General Public License for more details.                         	*
+ * This program is distributed in the hope that it will be useful,          *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of           *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the            *
+ * GNU General Public License for more details.                             *
  *                                                                          *
- * You should have received a copy of the GNU General Public License    	*
- * along with this program; if not, write to the Free Software          	*
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,           	*
- * MA 02110-1301, USA.                                                  	*
+ * You should have received a copy of the GNU General Public License        *
+ * along with this program; if not, write to the Free Software              *
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,               *
+ * MA 02110-1301, USA.                                                      *
  ****************************************************************************/
 
 #include <glib-object.h>
@@ -54,7 +54,8 @@ gboolean add_log_row(void *message)
 	if (g_list_length(rows) > config->log_size) {
 		while (g_list_length(rows) > config->log_size) {
 			GList *last_row = g_list_last(rows);
-			gtk_container_remove(GTK_CONTAINER(LISTBOX_LOGS), last_row->data);
+			gtk_container_remove(GTK_CONTAINER(LISTBOX_LOGS),
+					     last_row->data);
 			rows = g_list_remove(rows, last_row->data);
 		}
 	}
@@ -74,7 +75,8 @@ void clear_logs()
 	rows = gtk_container_get_children(GTK_CONTAINER(LISTBOX_LOGS));
 
 	while (rows) {
-		gtk_container_remove(GTK_CONTAINER(LISTBOX_LOGS), GTK_WIDGET(rows->data));
+		gtk_container_remove(GTK_CONTAINER(LISTBOX_LOGS),
+				     GTK_WIDGET(rows->data));
 		rows = rows->next;
 	}
 	g_mutex_unlock(&MUTEX);
@@ -106,7 +108,8 @@ gboolean update_label(gpointer data)
 		args->text = gtk_label_get_text(GTK_LABEL(args->widget));
 	}
 
-	gtk_label_set_markup(GTK_LABEL(args->widget), g_markup_printf_escaped(format, color, args->text));
+	gtk_label_set_markup(GTK_LABEL(args->widget),
+			     g_markup_printf_escaped(format, color, args->text));
 
 	g_slice_free1(sizeof(*args), args);
 
@@ -182,7 +185,8 @@ void activate_mainwindow(GtkApplication *app)
 	window = gtk_application_window_new(app);
 	gtk_window_set_title(GTK_WINDOW(window), "ShipSoftware-backend");
 	gtk_window_set_default_size(GTK_WINDOW(window), 600, 380);
-	gtk_window_set_icon(GTK_WINDOW(window), gdk_pixbuf_new_from_xpm_data(logo_xpm));
+	gtk_window_set_icon(GTK_WINDOW(window),
+			    gdk_pixbuf_new_from_xpm_data(logo_xpm));
 
 	menubar = gtk_menu_bar_new();
 	menubar_filemenu = gtk_menu_item_new_with_mnemonic("_File");
@@ -225,7 +229,9 @@ void activate_mainwindow(GtkApplication *app)
 	gtk_widget_set_sensitive(BUTTON_START, FALSE);
 	button_clear_log = gtk_button_new_with_label("Clear log");
 	gtk_box_pack_start(GTK_BOX(button_area), BUTTON_START, FALSE, FALSE, 10);
-	gtk_box_pack_start(GTK_BOX(button_area), gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0), TRUE, FALSE, 0);
+	gtk_box_pack_start(GTK_BOX(button_area),
+			   gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0), TRUE,
+			   FALSE, 0);
 	gtk_box_pack_start(GTK_BOX(button_area), button_clear_log, FALSE, FALSE, 10);
 
 	log_area = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
@@ -233,8 +239,11 @@ void activate_mainwindow(GtkApplication *app)
 	bottom_area = gtk_fixed_new();
 	scroll_container = gtk_scrolled_window_new(NULL, NULL);
 	gtk_container_add(GTK_CONTAINER(scroll_container), LISTBOX_LOGS);
-	gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scroll_container), GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
-	gtk_fixed_put(GTK_FIXED(bottom_area), gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 5), 0, 0);
+	gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scroll_container),
+				       GTK_POLICY_AUTOMATIC,
+				       GTK_POLICY_AUTOMATIC);
+	gtk_fixed_put(GTK_FIXED(bottom_area),
+		      gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 5), 0, 0);
 
 	main_box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 10);
 	gtk_box_pack_start(GTK_BOX(main_box), menubar, FALSE, FALSE, 0);

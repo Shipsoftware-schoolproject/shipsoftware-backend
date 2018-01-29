@@ -1,20 +1,20 @@
 /****************************************************************************
- * Copyright (c) 2017 Tomi Lähteenmäki <lihis@lihis.net>                	*
+ * Copyright (c) 2018 Tomi Lähteenmäki <lihis@lihis.net>                    *
  *                                                                          *
- * This program is free software; you can redistribute it and/or modify 	*
- * it under the terms of the GNU General Public License as published by 	*
- * the Free Software Foundation; either version 2 of the License, or    	*
- * (at your option) any later version.                                  	*
+ * This program is free software; you can redistribute it and/or modify     *
+ * it under the terms of the GNU General Public License as published by     *
+ * the Free Software Foundation; either version 2 of the License, or        *
+ * (at your option) any later version.                                      *
  *                                                                          *
- * This program is distributed in the hope that it will be useful,      	*
- * but WITHOUT ANY WARRANTY; without even the implied warranty of       	*
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the        	*
- * GNU General Public License for more details.                         	*
+ * This program is distributed in the hope that it will be useful,          *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of           *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the            *
+ * GNU General Public License for more details.                             *
  *                                                                          *
- * You should have received a copy of the GNU General Public License    	*
- * along with this program; if not, write to the Free Software          	*
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,           	*
- * MA 02110-1301, USA.                                                  	*
+ * You should have received a copy of the GNU General Public License        *
+ * along with this program; if not, write to the Free Software              *
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,               *
+ * MA 02110-1301, USA.                                                      *
  ****************************************************************************/
 
 #include <unistd.h>
@@ -69,7 +69,8 @@ static gboolean parse_route(struct Route *route, const gchar *text)
 				start_offset = (i + 1);
 				ret = TRUE;
 			} else {
-				destination = _substring(text, start_offset, (i - start_offset));
+				destination = _substring(text, start_offset,
+							 (i - start_offset));
 				ret = TRUE;
 				break;
 			}
@@ -139,8 +140,10 @@ static gboolean api_check_result(const gchar *json)
 	if (json_read_string("result", json, &result)) {
 		if (g_ascii_strcasecmp(result, "ok") != 0) {
 			gchar *description;
-			if (json_read_string("description", json, &description)) {
-				log_error(g_strconcat("API failed: ", description, NULL));
+			if (json_read_string("description", json, &description))
+			{
+				log_error(g_strconcat("API failed: ",
+						      description, NULL));
 			}
 		} else {
 			ret = TRUE;
@@ -209,7 +212,9 @@ gpointer api_thread()
 
 			// Get data from API
 			if (ships) {
-				if (!api_get_loc(ships, _config->api_key, &json, &error)) {
+				if (!api_get_loc(ships, _config->api_key, &json,
+						 &error))
+				{
 				   log_error(error);
 				}
 			}
@@ -224,42 +229,40 @@ gpointer api_thread()
 				}
 			}
 
-			if (entries > 0) {
-				for (gint64 i = 0; i < entries; ++i) {
-					const gchar *name = json_read_entry_string("name", json, i); name = !name ? "" : name;
-					const gint64 mmsi = json_read_entry_int("mmsi", json, i);
-					const gfloat latitude = (gfloat)json_read_entry_double("lat", json, i);
-					const gfloat longitude = (gfloat)json_read_entry_double("lng", json, i);
-					const gdouble course = json_read_entry_double("course", json, i);
-					const gdouble speed = json_read_entry_double("speed", json, i);
-					const gchar *comment = json_read_entry_string("comment", json, i);
-					struct Route *route;
+			for (gint64 i = 0; i < entries; ++i) {
+				const gchar *name = json_read_entry_string("name", json, i); name = !name ? "" : name;
+				const gint64 mmsi = json_read_entry_int("mmsi", json, i);
+				const gfloat latitude = (gfloat)json_read_entry_double("lat", json, i);
+				const gfloat longitude = (gfloat)json_read_entry_double("lng", json, i);
+				const gfloat course = (gfloat)json_read_entry_double("course", json, i);
+				const gdouble speed = json_read_entry_double("speed", json, i);
+				const gchar *comment = json_read_entry_string("comment", json, i);
+				struct Route *route;
 
-					route = g_slice_alloc(sizeof(*route));
-					error = NULL;
+				route = g_slice_alloc(sizeof(*route));
+				error = NULL;
 
-					if (!db_update_ship_course_speed(db, course, speed, mmsi, &error)) {
-						log_error(g_strconcat(name, ": UPDATE Ships failed, ", error, NULL));
-					}
+				if (!db_update_ship_course_speed(db, course, speed, mmsi, &error)) {
+					log_error(g_strconcat(name, ": UPDATE Ships failed, ", error, NULL));
+				}
 
-					if (!db_update_gps_location(db, latitude, longitude, mmsi, &error)) {
-						log_error(g_strconcat(name, ": UPDATE GPS failed, ", error, NULL));
-					}
+				if (!db_update_gps_location(db, latitude, longitude, mmsi, &error)) {
+					log_error(g_strconcat(name, ": UPDATE GPS failed, ", error, NULL));
+				}
 
-					if (!parse_route(route, comment)) {
-						log_error(g_strconcat(name, ": couldn't parse route", NULL));
+				if (!parse_route(route, comment)) {
+					log_error(g_strconcat(name, ": couldn't parse route", NULL));
+				} else {
+					if (!db_get_route_id(db, route, &error)) {
+						log_error(g_strconcat(name, ": failed to get Route ID, ", error, NULL));
 					} else {
-						if (!db_get_route_id(db, route, &error)) {
-							log_error(g_strconcat(name, ": failed to get Route ID, ", error, NULL));
-						} else {
-							if (!db_update_route(db, route->id, mmsi, &error)) {
-								log_error(g_strconcat(name, ": UPDATE Course failed, ", error, NULL));
-							}
+						if (!db_update_route(db, route->id, mmsi, &error)) {
+							log_error(g_strconcat(name, ": UPDATE Course failed, ", error, NULL));
 						}
 					}
-
-					g_slice_free1(sizeof(*route), route);
 				}
+
+				g_slice_free1(sizeof(*route), route);
 			}
 
 #ifdef WITH_GUI
@@ -292,7 +295,9 @@ gpointer api_thread()
 #ifdef WITH_GUI
 		gchar *sec_left;
 		sec_left = g_strdup_printf("%i", (sleep_time - slept));
-		_update_label(LABEL_RUNNING, TRUE, g_strconcat("Running (next update in ", sec_left, " seconds)", NULL));
+		_update_label(LABEL_RUNNING, TRUE,
+			      g_strconcat("Running (next update in ", sec_left,
+					  " seconds)", NULL));
 		g_free(sec_left);
 #endif
 

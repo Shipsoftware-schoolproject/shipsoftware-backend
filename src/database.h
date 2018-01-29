@@ -1,20 +1,20 @@
 /****************************************************************************
- * Copyright (c) 2017 Tomi Lähteenmäki <lihis@lihis.net>                	*
+ * Copyright (c) 2018 Tomi Lähteenmäki <lihis@lihis.net>                    *
  *                                                                          *
- * This program is free software; you can redistribute it and/or modify 	*
- * it under the terms of the GNU General Public License as published by 	*
- * the Free Software Foundation; either version 2 of the License, or    	*
- * (at your option) any later version.                                  	*
+ * This program is free software; you can redistribute it and/or modify     *
+ * it under the terms of the GNU General Public License as published by     *
+ * the Free Software Foundation; either version 2 of the License, or        *
+ * (at your option) any later version.                                      *
  *                                                                          *
- * This program is distributed in the hope that it will be useful,      	*
- * but WITHOUT ANY WARRANTY; without even the implied warranty of       	*
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the        	*
- * GNU General Public License for more details.                         	*
+ * This program is distributed in the hope that it will be useful,          *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of           *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the            *
+ * GNU General Public License for more details.                             *
  *                                                                          *
- * You should have received a copy of the GNU General Public License    	*
- * along with this program; if not, write to the Free Software          	*
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,           	*
- * MA 02110-1301, USA.                                                  	*
+ * You should have received a copy of the GNU General Public License        *
+ * along with this program; if not, write to the Free Software              *
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,               *
+ * MA 02110-1301, USA.                                                      *
  ****************************************************************************/
 
 /**
@@ -61,7 +61,8 @@ struct Route {
  * @param[out] error Pointer to gchar to store error message
  * @return gboolean Returns TRUE on success, otherwise FALSE
  */
-gboolean db_init(struct Database *db, const struct Config *config, gchar **error);
+gboolean db_init(struct Database *db, const struct Config *config,
+		 gchar **error);
 
 /**
  * Close connection
@@ -93,7 +94,9 @@ gboolean db_get_ships(const struct Database *db, gchar **ships, gchar **error);
  * @param[out] error Pointer to gchar where to store error message
  * @return gboolean Returns TRUE on success, otherwise FALSE
  */
-gboolean db_update_ship_course_speed(const struct Database *db, const gfloat course, const gdouble speed, const gint64 mmsi, gchar **error);
+gboolean db_update_ship_course_speed(const struct Database *db,
+				     const gfloat course, const gdouble speed,
+				     const gint64 mmsi, gchar **error);
 
 /**
  * Update GPS location in GPS table
@@ -106,8 +109,8 @@ gboolean db_update_ship_course_speed(const struct Database *db, const gfloat cou
  * @return gboolean Returns TRUE on success, otherwise FALSE
  */
 gboolean db_update_gps_location(const struct Database *db, const gfloat latitude,
-								const gfloat longitude, const gint64 mmsi,
-								gchar **error);
+				const gfloat longitude, const gint64 mmsi,
+				gchar **error);
 
 /**
  * @brief Get route ID
@@ -120,7 +123,8 @@ gboolean db_update_gps_location(const struct Database *db, const gfloat latitude
  * @param[out] error Pointer to gchar where to store error message
  * @return gboolean Returns TRUE on success, otherwise FALSE
  */
-gboolean db_get_route_id(const struct Database *db, struct Route *route, gchar **error);
+gboolean db_get_route_id(const struct Database *db, struct Route *route,
+			 gchar **error);
 
 /**
  * Update ship current route
@@ -131,6 +135,7 @@ gboolean db_get_route_id(const struct Database *db, struct Route *route, gchar *
  * @param[out] error Pointer to gchar where to store error message
  * @return gboolean Returns TRUE on success, otherwise FALSE
  */
-gboolean db_update_route(const struct Database *db, gint64 id, const gint64 mmsi, gchar **error);
+gboolean db_update_route(const struct Database *db, gint64 id,
+			 const gint64 mmsi, gchar **error);
 
 #endif

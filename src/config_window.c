@@ -1,20 +1,20 @@
 /****************************************************************************
- * Copyright (c) 2017 Tomi Lähteenmäki <lihis@lihis.net>                	*
+ * Copyright (c) 2018 Tomi Lähteenmäki <lihis@lihis.net>                    *
  *                                                                          *
- * This program is free software; you can redistribute it and/or modify 	*
- * it under the terms of the GNU General Public License as published by 	*
- * the Free Software Foundation; either version 2 of the License, or    	*
- * (at your option) any later version.                                  	*
+ * This program is free software; you can redistribute it and/or modify     *
+ * it under the terms of the GNU General Public License as published by     *
+ * the Free Software Foundation; either version 2 of the License, or        *
+ * (at your option) any later version.                                      *
  *                                                                          *
- * This program is distributed in the hope that it will be useful,      	*
- * but WITHOUT ANY WARRANTY; without even the implied warranty of       	*
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the        	*
- * GNU General Public License for more details.                         	*
+ * This program is distributed in the hope that it will be useful,          *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of           *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the            *
+ * GNU General Public License for more details.                             *
  *                                                                          *
- * You should have received a copy of the GNU General Public License    	*
- * along with this program; if not, write to the Free Software          	*
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,           	*
- * MA 02110-1301, USA.                                                  	*
+ * You should have received a copy of the GNU General Public License        *
+ * along with this program; if not, write to the Free Software              *
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,               *
+ * MA 02110-1301, USA.                                                      *
  ****************************************************************************/
 
 #include "config_window.h"
@@ -41,11 +41,11 @@ static gboolean trigger_save(struct new_config *new_config_data, gchar **error)
 			ret = TRUE;
 			g_slice_free1(sizeof(*config), config);
 			config = g_slice_copy(sizeof(*config), new_config);
-			config->db_name = g_memdup(new_config->db_name, strlen(new_config->db_name) + 1);
-			config->db_username = g_memdup(new_config->db_username, strlen(new_config->db_username) + 1);
-			config->db_password = g_memdup(new_config->db_password, strlen(new_config->db_password) + 1);
-			config->db_hostname = g_memdup(new_config->db_hostname, strlen(new_config->db_hostname) + 1);
-			config->api_key = g_memdup(new_config->api_key, strlen(new_config->api_key) + 1);
+			config->db_name = g_memdup(new_config->db_name, (guint)strlen(new_config->db_name) + 1);
+			config->db_username = g_memdup(new_config->db_username, (guint)strlen(new_config->db_username) + 1);
+			config->db_password = g_memdup(new_config->db_password, (guint)strlen(new_config->db_password) + 1);
+			config->db_hostname = g_memdup(new_config->db_hostname, (guint)strlen(new_config->db_hostname) + 1);
+			config->api_key = g_memdup(new_config->api_key, (guint)strlen(new_config->api_key) + 1);
 		}
 	}
 

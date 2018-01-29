@@ -1,20 +1,20 @@
 /****************************************************************************
- * Copyright (c) 2017 Tomi Lähteenmäki <lihis@lihis.net>                	*
+ * Copyright (c) 2018 Tomi Lähteenmäki <lihis@lihis.net>                    *
  *                                                                          *
- * This program is free software; you can redistribute it and/or modify 	*
- * it under the terms of the GNU General Public License as published by 	*
- * the Free Software Foundation; either version 2 of the License, or    	*
- * (at your option) any later version.                                  	*
+ * This program is free software; you can redistribute it and/or modify     *
+ * it under the terms of the GNU General Public License as published by     *
+ * the Free Software Foundation; either version 2 of the License, or        *
+ * (at your option) any later version.                                      *
  *                                                                          *
- * This program is distributed in the hope that it will be useful,      	*
- * but WITHOUT ANY WARRANTY; without even the implied warranty of       	*
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the        	*
- * GNU General Public License for more details.                         	*
+ * This program is distributed in the hope that it will be useful,          *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of           *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the            *
+ * GNU General Public License for more details.                             *
  *                                                                          *
- * You should have received a copy of the GNU General Public License    	*
- * along with this program; if not, write to the Free Software          	*
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,           	*
- * MA 02110-1301, USA.                                                  	*
+ * You should have received a copy of the GNU General Public License        *
+ * along with this program; if not, write to the Free Software              *
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,               *
+ * MA 02110-1301, USA.                                                      *
  ****************************************************************************/
 
 #include <glib.h>
@@ -30,25 +30,26 @@
  * @brief Memory structure for cURL
  */
 struct MemoryStruct {
-  char *memory; /**< Memory pointer */
-  size_t size; /**< Memory size */
+	char *memory; /**< Memory pointer */
+	size_t size; /**< Memory size */
 };
 
-static size_t copy_to_memory(const void *contents, const size_t size, const size_t nmemb, void *userp)
+static size_t copy_to_memory(const void *contents, const size_t size,
+			     const size_t nmemb, void *userp)
 {
-  size_t realsize = size * nmemb;
-  struct MemoryStruct *mem = (struct MemoryStruct *)userp;
+	size_t realsize = size * nmemb;
+	struct MemoryStruct *mem = (struct MemoryStruct *)userp;
 
-  mem->memory = realloc(mem->memory, mem->size + realsize + 1);
-  if(mem->memory == NULL) {
-	return 0;
-  }
+	mem->memory = realloc(mem->memory, mem->size + realsize + 1);
+	if(mem->memory == NULL) {
+		return 0;
+	}
 
-  memcpy(&(mem->memory[mem->size]), contents, realsize);
-  mem->size += realsize;
-  mem->memory[mem->size] = 0;
+	memcpy(&(mem->memory[mem->size]), contents, realsize);
+	mem->size += realsize;
+	mem->memory[mem->size] = 0;
 
-  return realsize;
+	return realsize;
 }
 
 gboolean api_get_loc(const gchar *name, const gchar *api_key, gchar **data, gchar **error)
@@ -68,14 +69,17 @@ gboolean api_get_loc(const gchar *name, const gchar *api_key, gchar **data, gcha
 		return FALSE;
 	}
 
-	curl_easy_setopt(curl, CURLOPT_URL, g_strconcat(API_URL, "name=", name, "&what=loc&apikey=", api_key, NULL));
+	curl_easy_setopt(curl, CURLOPT_URL, g_strconcat(API_URL, "name=", name,
+							"&what=loc&apikey=",
+							api_key, NULL));
 	curl_easy_setopt(curl, CURLOPT_USERAGENT, user_agent);
 	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, copy_to_memory);
 	curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void *)&chunk);
 
 	res = curl_easy_perform(curl);
 	if (res != CURLE_OK) {
-		*(error) = g_strconcat("API failed: " , curl_easy_strerror(res), NULL);
+		*(error) = g_strconcat("API failed: " , curl_easy_strerror(res),
+				       NULL);
 		return FALSE;
 	} else {
 		*(data) = g_malloc(chunk.size);
