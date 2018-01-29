@@ -276,8 +276,8 @@ gboolean db_update_gps_location(const struct Database *db, const gfloat latitude
 	mysql_stmt_close(stmt);
 
 	/**
-	 * @todo Issue [#2](https://github.com/Shipsoftware-schoolproject/shipsoftware/issues/2)
-	 * needs to be fixed in [shipsoftware](https://github.com/Shipsoftware-schoolproject/shipsoftware)
+	 * @todo Issue [#2](https://github.com/Shipsoftware-schoolproject/shipsoftware-sql/issues/1)
+	 * needs to be fixed in [shipsoftware-sql](https://github.com/Shipsoftware-schoolproject/shipsoftware-sql)
 	 * project. Until that, we use this ugly "work around"..
 	 */
 	if (ret) {

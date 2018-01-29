@@ -1,7 +1,7 @@
 # ShipSoftware-backend
 
 ShipSoftware-backend was a school project which was worked on in couple
-different course in VAMK on 2017.
+different course in VAMK on 2017-2018.
 
 Initial version of this project was made with C# but Tomi wanted to get in
 touch with some cross-platform development and of course use some C so the
@@ -10,7 +10,7 @@ project was rewritten from scratch with C with a complete documentation.
 This program is just a dummy "middleman" between aprs.fi API and database and it
 does not provide any other functionality than automatically getting data from
 the API and inserting it to database. This program just gives a purpose for
-the [shipsoftware](https://github.com/Shipsoftware-schoolproject/shipsoftware)
+the [shipsoftware-chsarp](https://github.com/Shipsoftware-schoolproject/shipsoftware-csharp)
 and a [shipsoftware-php](https://github.com/Shipsoftware-schoolproject/shipsoftware-php),
 by providing new data to the database; otherwise those projects would not
 have much data to display.
@@ -25,7 +25,7 @@ itself or any other similar site.
 
  * Valid API key from [aprs.fi](https://aprs.fi).
  * MySQL database
-  * Use MySQL clauses from [shipsoftware](https://github.com/Shipsoftware-schoolproject/shipsoftware)
+  * Use MySQL clauses from [shipsoftware-sql](https://github.com/Shipsoftware-schoolproject/shipsoftware-sql/tree/master/MySQL)
   repository to setup the database correctly.
 
 API key is needed to fetch information of ships and database obliviously is
