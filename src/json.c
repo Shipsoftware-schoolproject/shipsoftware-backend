@@ -120,14 +120,29 @@ gboolean json_read_string(gchar *member, gchar *json, gchar **value)
 
 gint64 json_read_entry_int(gchar *member, gchar *json, gint64 index)
 {
-	gint64 ret;
+	gint64 ret = 0;
 	JsonNode *node;
+	GType node_type;
 
 	if (_get_node_from_array(member, json, index, &node)) {
-		ret = g_ascii_strtoll(json_node_get_string(node), NULL, 10);
+		node_type = json_node_get_value_type(node);
+
+		switch (node_type) {
+			case G_TYPE_INT:
+			case G_TYPE_UINT:
+			case G_TYPE_LONG:
+			case G_TYPE_ULONG:
+			case G_TYPE_INT64:
+			case G_TYPE_UINT64:
+				ret = json_node_get_int(node);
+				break;
+			case G_TYPE_STRING:
+				ret = g_ascii_strtoll(json_node_get_string(node), NULL, 10);
+				break;
+			default:
+				break;
+		}
 		json_node_free(node);
-	} else {
-		ret = 0;
 	}
 
 	return ret;
@@ -135,25 +150,33 @@ gint64 json_read_entry_int(gchar *member, gchar *json, gint64 index)
 
 gdouble json_read_entry_double(gchar *member, gchar *json, gint64 index)
 {
-	gdouble ret;
+	gdouble ret = 0.0;
 	JsonNode *node;
+	GType node_type;
 
 	if (_get_node_from_array(member, json, index, &node)) {
-		// ARPS.fi returns first entry as a double but subsequent entries as a "string"
-		// for: lat, lng, course; expect speed..
-		if (g_strcmp0(member, "speed") == 0) {
-			ret = json_node_get_double(node);
-		} else {
-			if (index < 1) {
+		node_type = json_node_get_value_type(node);
+
+		switch (node_type) {
+			case G_TYPE_INT:
+			case G_TYPE_UINT:
+			case G_TYPE_LONG:
+			case G_TYPE_ULONG:
+			case G_TYPE_INT64:
+			case G_TYPE_UINT64:
+				ret = json_node_get_int(node);
+				break;
+			case G_TYPE_FLOAT:
+			case G_TYPE_DOUBLE:
 				ret = json_node_get_double(node);
-			} else {
-				const gchar *val = json_node_get_string(node);
-				ret = g_ascii_strtod(val, NULL);
-			}
+				break;
+			case G_TYPE_STRING:
+				ret = g_ascii_strtod(json_node_get_string(node), NULL);
+				break;
+			default:
+				break;
 		}
 		json_node_free(node);
-	} else {
-		ret = 0;
 	}
 
 	return ret;
@@ -161,14 +184,33 @@ gdouble json_read_entry_double(gchar *member, gchar *json, gint64 index)
 
 gchar *json_read_entry_string(gchar *member, gchar *json, gint64 index)
 {
-	gchar *ret;
+	gchar *ret = NULL;
 	JsonNode *node;
+	GType node_type;
 
 	if (_get_node_from_array(member, json, index, &node)) {
-		ret = g_strdup(json_node_get_string(node));
+		node_type = json_node_get_value_type(node);
+
+		switch (node_type) {
+			case G_TYPE_INT:
+			case G_TYPE_UINT:
+			case G_TYPE_LONG:
+			case G_TYPE_ULONG:
+			case G_TYPE_INT64:
+			case G_TYPE_UINT64:
+				ret = g_strdup_printf("%" G_GUINT64_FORMAT, json_node_get_int(node));
+				break;
+			case G_TYPE_FLOAT:
+			case G_TYPE_DOUBLE:
+				ret = g_strdup_printf("%f", json_node_get_double(node));
+				break;
+			case G_TYPE_STRING:
+				ret = g_strdup(json_node_get_string(node));
+				break;
+			default:
+				break;
+		}
 		json_node_free(node);
-	} else {
-		ret = NULL;
 	}
 
 	return ret;
