@@ -60,7 +60,7 @@ gboolean db_get_ships(const struct Database *db, gchar **ships, gchar **error)
 	gchar *_ships;
 
 	ret = FALSE;
-	query = "SELECT IMO FROM Ships";
+	query = "SELECT MMSI FROM Ships";
 	_ships = NULL;
 
 	if (mysql_query(db->con, query)) {
