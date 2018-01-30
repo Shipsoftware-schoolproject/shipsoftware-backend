@@ -18,52 +18,26 @@
  ****************************************************************************/
 
 /**
- * @file config_window.h
- * @brief Configuration dialog
- * @details Provides configuration window
+ * @file ship_defines.h
+ * @brief Definitions which are needed by other files
  * @author Tomi Lähteenmäki
  * @license This project is licensed under GNU General Public License, Version 2
  */
 
-#ifndef CONFIG_WINDOW_H
-#define CONFIG_WINDOW_H
-
-#include <gtk/gtk.h>
-#include "config.h"
-
-extern int RUNNING;
+#ifndef SHIPSOFTWAREBACKEND_SHIP_DEFINES_H
+#define SHIPSOFTWAREBACKEND_SHIP_DEFINES_H
 
 /**
- * @see Config()
- */
-extern struct Config *config;
-
-/**
- * @struct new_config
- * @brief Holds GtkWidget pointers to the widgets
+ * @struct Route
+ * @brief Holds data about ship route
  *
- * Holds GtkWidget pointers which are used to get data from them.
+ * Holds data of ships departure and destination port, combined with
+ * the ID of the route which is stored in database for that specific route.
  */
-struct new_config {
-    GtkWidget *window; /**< The configuration window itself */
-    GtkWidget *db_name; /**< GTK_ENTRY of database name */
-    GtkWidget *db_username; /**< GTK_ENTRY of database username */
-    GtkWidget *db_password; /**< GTK_ENTRY of user password */
-    GtkWidget *db_hostname; /**< GTK_ENTRY of database hostname */
-    GtkWidget *api_key; /**< GTK_ENTRY of API key */
-    GtkWidget *log_size; /**< GTK_ENTRY of log size */
+struct Route {
+	gchar *departure; /**< Ship departure port */
+	gchar *destination; /**< Ship destination port */
+	gint64 id; /**< ShipRouteID in the database */
 };
 
-/**
- * @brief Shows configuration window
- *
- * Constructs configuration window and shows it.
- *
- * @param[in] parent
- * @return gint Returns gint which is type of GTK_RESPONSE
- * @note @p widget is not used
- * @note @p parent should be type of GtkWidget*
- */
-gint show_config_window(gpointer parent);
-
-#endif
+#endif //SHIPSOFTWAREBACKEND_SHIP_DEFINES_H

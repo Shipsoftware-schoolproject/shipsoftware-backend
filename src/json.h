@@ -29,10 +29,7 @@
 #ifndef JSON_H
 #define JSON_H
 
-/**
- * @see Config()
- */
-extern struct Config *config;
+#include "config.h"
 
 /**
  * Read INT value from member

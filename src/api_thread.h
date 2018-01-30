@@ -31,14 +31,8 @@
 
 #include <glib-object.h>
 
-/**
- * @see Config()
- */
-extern struct Config *config;
-/**
- * @see Database()
- */
-extern struct Database *db;
+#include "config.h"
+#include "database.h"
 
 #ifdef WITH_GUI
 /**
@@ -88,9 +82,12 @@ void log_error(gpointer message);
  * from the API and inserting it to the database. The thread will run until the
  * the @p RUNNING_STATE is not "0".
  *
+ * @param[in] config Struct of type config()
  * @return gpointer
- * @note Returns always NULL
+ * @note Returns always NULL.
+ * @note A copy of @p config is created thus to reload config, thread needs
+ * to be restarted.
  */
-gpointer api_thread();
+gpointer api_thread(gpointer config);
 
 #endif

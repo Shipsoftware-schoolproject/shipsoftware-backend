@@ -18,6 +18,7 @@
  ****************************************************************************/
 
 #include <glib-object.h>
+#include "config.h"
 #include "main_window.h"
 #include "api_thread.h"
 #include "dialogs.h"
@@ -135,7 +136,7 @@ void start_clicked()
 		g_mutex_lock(&MUTEX);
 		RUNNING = 1;
 		g_mutex_unlock(&MUTEX);
-		thread = g_thread_new("api_thread", api_thread, NULL);
+		thread = g_thread_new("api_thread", api_thread, config);
 		g_thread_unref(thread);
 	}
 }

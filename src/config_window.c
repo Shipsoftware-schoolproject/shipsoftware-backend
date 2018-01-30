@@ -18,7 +18,6 @@
  ****************************************************************************/
 
 #include "config_window.h"
-#include "config.h"
 #include "dialogs.h"
 #include <string.h>
 

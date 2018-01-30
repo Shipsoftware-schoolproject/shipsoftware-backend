@@ -22,11 +22,8 @@
 #include "api_thread.h"
 #ifdef WITH_GUI
 #include "main_window.h"
-#else
-#include "config.h"
 #endif
 #include "api.h"
-#include "database.h"
 #include "json.h"
 
 int RUNNING = 0;
@@ -156,7 +153,7 @@ static gboolean api_check_result(const gchar *json)
 	return ret;
 }
 
-gpointer api_thread()
+gpointer api_thread(gpointer config)
 {
 	int sleep_time;
 	int slept;
@@ -168,8 +165,13 @@ gpointer api_thread()
 	slept = sleep_time;
 	g_mutex_lock(&MUTEX);
 	_running = RUNNING;
-	_config = g_slice_alloc(sizeof(*config));
-	g_memmove(_config, config, sizeof(*config));
+	_config = g_slice_alloc(sizeof((struct Config *)config));
+	if (!_config) {
+		log_error(g_strdup("Failed to allocate memory for config!"));
+		g_thread_exit(GINT_TO_POINTER(1));
+		return NULL;
+	}
+	_config = g_slice_dup(struct Config, config);
 	g_mutex_unlock(&MUTEX);
 	terminate = FALSE;
 

@@ -29,7 +29,8 @@
 #ifndef DATABASE_H
 #define DATABASE_H
 
-extern struct Config *config;
+#include "config.h"
+#include "ship_defines.h"
 
 /**
  * @struct Database
@@ -38,19 +39,6 @@ extern struct Config *config;
  */
 struct Database {
 	gpointer con; /**< Connection handle */
-};
-
-/**
- * @struct Route
- * @brief Holds data about ship route
- *
- * Holds data of ships departure and destination port, combined with
- * the ID of the route which is stored in database for that specific route.
- */
-struct Route {
-	gchar *departure; /**< Ship departure port */
-	gchar *destination; /**< Ship destination port */
-	gint64 id; /**< ShipRouteID in the database */
 };
 
 /**

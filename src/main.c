@@ -110,7 +110,7 @@ int main(int argc, char *argv[])
 	if (config_valid) {
 		RUNNING = 1;
 		log_message(g_strdup("Started"));
-		thread = g_thread_new("api_thread", api_thread, &status);
+		thread = g_thread_new("api_thread", api_thread, (gpointer)config);
 		status = GPOINTER_TO_INT(g_thread_join(thread));
 		g_thread_unref(thread);
 	}
