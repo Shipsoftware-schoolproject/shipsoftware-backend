@@ -17,11 +17,10 @@
  * MA 02110-1301, USA.                                                      *
  ****************************************************************************/
 
-#include <glib-object.h>
+#include <glib.h>
 #include <mysql.h>
 #include <string.h>
 #include "database.h"
-#include "config.h"
 
 gboolean db_init(struct Database *db, const struct Config *config,
 		 gchar **error)
@@ -61,7 +60,7 @@ gboolean db_get_ships(const struct Database *db, gchar **ships, gchar **error)
 	gchar *_ships;
 
 	ret = FALSE;
-	query = "SELECT MMSI FROM Ships";
+	query = "SELECT IMO FROM Ships";
 	_ships = NULL;
 
 	if (mysql_query(db->con, query)) {
@@ -101,17 +100,16 @@ gboolean db_get_ships(const struct Database *db, gchar **ships, gchar **error)
 	return ret;
 }
 
-gboolean db_update_ship_course_speed(const struct Database *db,
-				     const gfloat course, const gdouble speed,
-				     const gint64 mmsi, gchar **error)
+gboolean db_update_ship_info(const struct Database *db, const struct Ship *info,
+			     gchar **error)
 {
 	gboolean ret;
 	gchar *query;
 	MYSQL_STMT *stmt;
-	MYSQL_BIND bind[3];
+	MYSQL_BIND bind[19];
 
 	ret = FALSE;
-	query = "UPDATE Ships SET Course = ?, ShipSpeed = ? WHERE MMSI = ?";
+	query = "UPDATE Ships SET ShipName = ?, CommentText = ?, ShipLength = ?, Width = ?, Draught = ?, MMSI = ?, Course = ?, Heading = ?, ShipSpeed = ?, RefFront = ?, RefLeft = ?, PathText = ?, Iclass = ?, TargetType = ?, SrcCall = ?, DstCall = ?, VesselClass = ?, NavStat = ? WHERE IMO = ?";
 
 	stmt = mysql_stmt_init(db->con);
 	if (!stmt) {
@@ -124,20 +122,70 @@ gboolean db_update_ship_course_speed(const struct Database *db,
 				       mysql_stmt_error(stmt), NULL);
 	} else {
 		memset(bind, 0, sizeof(bind));
-		bind[0].buffer_type = MYSQL_TYPE_FLOAT;
-		bind[0].buffer = (char *)&course;
-		bind[0].is_null = 0;
-		bind[0].length = 0;
 
-		bind[1].buffer_type = MYSQL_TYPE_DOUBLE;
-		bind[1].buffer = (char *)&speed;
-		bind[1].is_null = 0;
-		bind[1].length = 0;
+		bind[0].buffer_type = MYSQL_TYPE_STRING;
+		bind[0].buffer = info->name;
+		bind[0].buffer_length = strlen(info->name);
 
-		bind[2].buffer_type = MYSQL_TYPE_LONG;
-		bind[2].buffer = (char *)&mmsi;
-		bind[2].is_null = 0;
-		bind[2].length= 0;
+		bind[1].buffer_type = MYSQL_TYPE_STRING;
+		bind[1].buffer = info->comment;
+		bind[1].buffer_length = strlen(info->comment);
+
+		bind[2].buffer_type = MYSQL_TYPE_FLOAT;
+		bind[2].buffer = &info->length;
+
+		bind[3].buffer_type = MYSQL_TYPE_FLOAT;
+		bind[3].buffer = &info->width;
+
+		bind[4].buffer_type = MYSQL_TYPE_FLOAT;
+		bind[4].buffer = &info->draught;
+
+		bind[5].buffer_type = MYSQL_TYPE_LONG;
+		bind[5].buffer = &info->mmsi;
+
+		bind[6].buffer_type = MYSQL_TYPE_FLOAT;
+		bind[6].buffer = &info->course;
+
+		bind[7].buffer_type = MYSQL_TYPE_LONG;
+		bind[7].buffer = &info->heading;
+
+		bind[8].buffer_type = MYSQL_TYPE_FLOAT;
+		bind[8].buffer = &info->speed;
+
+		bind[9].buffer_type = MYSQL_TYPE_LONG;
+		bind[9].buffer = &info->ref_front;
+
+		bind[10].buffer_type = MYSQL_TYPE_LONG;
+		bind[10].buffer = &info->ref_left;
+
+		bind[11].buffer_type = MYSQL_TYPE_STRING;
+		bind[11].buffer = info->path;
+		bind[11].buffer_length = strlen(info->path);
+
+		bind[12].buffer_type = MYSQL_TYPE_STRING;
+		bind[12].buffer = &info->class;
+		bind[12].buffer_length = 1;
+
+		bind[13].buffer_type = MYSQL_TYPE_STRING;
+		bind[13].buffer = &info->type;
+		bind[13].buffer_length = 1;
+
+		bind[14].buffer_type = MYSQL_TYPE_STRING;
+		bind[14].buffer = info->srccall;
+		bind[14].buffer_length = strlen(info->srccall);
+
+		bind[15].buffer_type = MYSQL_TYPE_STRING;
+		bind[15].buffer = info->dstcall;
+		bind[15].buffer_length = strlen(info->dstcall);
+
+		bind[16].buffer_type = MYSQL_TYPE_LONG;
+		bind[16].buffer = &info->vessel_class;
+
+		bind[17].buffer_type = MYSQL_TYPE_LONG;
+		bind[17].buffer = &info->navstat;
+
+		bind[18].buffer_type = MYSQL_TYPE_LONG;
+		bind[18].buffer = &info->imo;
 
 		if (mysql_stmt_bind_param(stmt, bind)) {
 			*(error) = g_strdup_printf(mysql_stmt_error(stmt), NULL);
@@ -155,86 +203,16 @@ gboolean db_update_ship_course_speed(const struct Database *db,
 	return ret;
 }
 
-static gboolean _get_ship_id(const struct Database *db, const gint64 mmsi,
-			     gint32 *ship_id, gchar **error)
+gboolean db_update_ship_gps(const struct Database *db, const struct Ship *info,
+			    gchar **error)
 {
 	gboolean ret;
 	const gchar *query;
 	MYSQL_STMT *stmt;
-	MYSQL_BIND bind[1];
-	MYSQL_BIND result[1];
-	gint32 id;
+	MYSQL_BIND bind[5];
 
 	ret = FALSE;
-	query = "SELECT ShipID FROM Ships WHERE MMSI = ?";
-	stmt = mysql_stmt_init(db->con);
-	if (!stmt) {
-		*(error) = g_strdup("failed to prepare query, out of memory");
-		return FALSE;
-	}
-
-	if (mysql_stmt_prepare(stmt, query, strlen(query))) {
-		*(error) = g_strconcat("query prepare failed: " ,
-				       mysql_stmt_error(stmt), NULL);
-	} else {
-		memset(bind, 0, sizeof(bind));
-		bind[0].buffer_type = MYSQL_TYPE_LONG;
-		bind[0].buffer = (char *)&mmsi;
-		bind[0].is_null = 0;
-		bind[0].length = 0;
-
-		memset(result, 0, sizeof(result));
-		result[0].buffer_type = MYSQL_TYPE_LONG;
-		result[0].buffer = (char *)&id;
-		result[0].length = 0;
-
-		if (mysql_stmt_bind_param(stmt, bind)) {
-			*(error) = g_strdup_printf(mysql_stmt_error(stmt), NULL);
-		} else {
-			if (mysql_stmt_bind_result(stmt, result)) {
-				*(error) = g_strdup_printf(mysql_stmt_error(stmt), NULL);
-			} else {
-				if (mysql_stmt_execute(stmt)) {
-					*(error) = g_strdup_printf(mysql_stmt_error(stmt));
-				} else {
-					if (mysql_stmt_store_result(stmt)) {
-						*(error) = g_strdup_printf(mysql_stmt_error(stmt));
-					} else {
-						if (mysql_stmt_fetch(stmt) != 0) {
-							*(error) = g_strdup("no results");
-						} else {
-							(*ship_id) = id;
-							mysql_stmt_free_result(stmt);
-							ret = TRUE;
-						}
-					}
-				}
-			}
-		}
-	}
-
-	mysql_stmt_close(stmt);
-
-	return ret;
-}
-
-gboolean db_update_gps_location(const struct Database *db, const gfloat latitude,
-				const gfloat longitude, const gint64 mmsi,
-				gchar **error)
-{
-	gboolean ret;
-	const gchar *query;
-	gint32 ship_id;
-	MYSQL_STMT *stmt;
-	MYSQL_BIND bind[3];
-
-	ret = FALSE;
-	query = "INSERT INTO GPS (ShipID, North, East) VALUES (?, ?, ?)";
-
-	if (!_get_ship_id(db, mmsi, &ship_id, error)) {
-		*(error) = g_strconcat("couldn't get ShipID: ", *(error), NULL);
-		return FALSE;
-	}
+	query = "INSERT INTO GPS (IMO, Lat, Lng, RealTime, LastTime) VALUES (?, ?, ?, ?, ?)";
 
 	stmt = mysql_stmt_init(db->con);
 	if (!stmt) {
@@ -246,21 +224,47 @@ gboolean db_update_gps_location(const struct Database *db, const gfloat latitude
 		*(error) = g_strconcat("query prepare failed: " ,
 				       mysql_stmt_error(stmt), NULL);
 	} else {
+		struct tm unix_time;
+		struct tm unix_lasttime;
+		MYSQL_TIME sql_time;
+		MYSQL_TIME sql_lasttime;
+
+		gmtime_r(&info->time, &unix_time);
+		sql_time.year = 1900 + (guint)unix_time.tm_year;
+		sql_time.month = 1 + (guint)unix_time.tm_mon;
+		sql_time.day = (guint)unix_time.tm_mday;
+		sql_time.hour = (guint)unix_time.tm_hour;
+		sql_time.minute = (guint)unix_time.tm_min;
+		sql_time.second = (guint)unix_time.tm_sec;
+		sql_time.second_part = 0;
+		sql_time.neg = 0;
+
+		gmtime_r(&info->lasttime, &unix_lasttime);
+		sql_lasttime.year = 1900 + (guint)unix_lasttime.tm_year;
+		sql_lasttime.month = 1 + (guint)unix_lasttime.tm_mon;
+		sql_lasttime.day = (guint)unix_lasttime.tm_mday;
+		sql_lasttime.hour = (guint)unix_lasttime.tm_hour;
+		sql_lasttime.minute = (guint)unix_lasttime.tm_min;
+		sql_lasttime.second = (guint)unix_lasttime.tm_sec;
+		sql_lasttime.second_part = 0;
+		sql_lasttime.neg = 0;
+
 		memset(bind, 0, sizeof(bind));
+
 		bind[0].buffer_type = MYSQL_TYPE_LONG;
-		bind[0].buffer = (void *)&ship_id;
-		bind[0].is_null = 0;
-		bind[0].length= 0;
+		bind[0].buffer = &info->imo;
 
-		bind[1].buffer_type = MYSQL_TYPE_FLOAT;
-		bind[1].buffer = (char *)&latitude;
-		bind[1].is_null = 0;
-		bind[1].length = 0;
+		bind[1].buffer_type = MYSQL_TYPE_DOUBLE;
+		bind[1].buffer = &info->latitude;
 
-		bind[2].buffer_type = MYSQL_TYPE_FLOAT;
-		bind[2].buffer = (char *)&longitude;
-		bind[2].is_null = 0;
-		bind[2].length = 0;
+		bind[2].buffer_type = MYSQL_TYPE_DOUBLE;
+		bind[2].buffer = &info->longitude;
+
+		bind[3].buffer_type = MYSQL_TYPE_DATETIME;
+		bind[3].buffer = &sql_time;
+
+		bind[4].buffer_type = MYSQL_TYPE_DATETIME;
+		bind[4].buffer = &sql_lasttime;
 
 		if (mysql_stmt_bind_param(stmt, bind)) {
 			*(error) = g_strdup_printf(mysql_stmt_error(stmt), NULL);
@@ -276,7 +280,7 @@ gboolean db_update_gps_location(const struct Database *db, const gfloat latitude
 	mysql_stmt_close(stmt);
 
 	/**
-	 * @todo Issue [#2](https://github.com/Shipsoftware-schoolproject/shipsoftware-sql/issues/1)
+	 * @todo Issue [#1](https://github.com/Shipsoftware-schoolproject/shipsoftware-sql/issues/1)
 	 * needs to be fixed in [shipsoftware-sql](https://github.com/Shipsoftware-schoolproject/shipsoftware-sql)
 	 * project. Until that, we use this ugly "work around"..
 	 */
@@ -286,7 +290,7 @@ gboolean db_update_gps_location(const struct Database *db, const gfloat latitude
 		gint64 num_rows;
 		MYSQL_BIND result[1];
 
-		count_query = g_strdup_printf("SELECT COUNT(*) FROM GPS WHERE ShipID = %" G_GINT32_FORMAT, ship_id);
+		count_query = g_strdup_printf("SELECT COUNT(*) FROM GPS WHERE IMO = %" G_GINT64_FORMAT, info->imo);
 		num_rows = 0;
 
 		stmt = mysql_stmt_init(db->con);
@@ -317,7 +321,7 @@ gboolean db_update_gps_location(const struct Database *db, const gfloat latitude
 							*(error) = g_strconcat("failed to fetch results, ", mysql_stmt_error(stmt), NULL);
 						} else {
 							while (num_rows > 5) {
-								gchar *query = g_strdup_printf("SELECT LogID FROM GPS WHERE ShipID = %" G_GINT32_FORMAT " ORDER BY LogID ASC LIMIT 1", ship_id);
+								gchar *query = g_strdup_printf("SELECT LogID FROM GPS WHERE IMO = %" G_GINT64_FORMAT " ORDER BY LogID ASC LIMIT 1", info->imo);
 								MYSQL_STMT *del_stmt;
 								MYSQL_BIND del_result[1];
 								gint32 log_id;
@@ -363,102 +367,4 @@ gboolean db_update_gps_location(const struct Database *db, const gfloat latitude
 	}
 
 	return ret;
-}
-
-gboolean db_get_route_id(const struct Database *db, struct Route *route,
-			 gchar **error)
-{
-	gboolean ret;
-	gchar *query;
-	MYSQL_STMT *stmt;
-	MYSQL_BIND bind[2];
-	MYSQL_BIND result[1];
-	gint id;
-
-	ret = FALSE;
-
-	if (route->departure == NULL && route->destination != NULL) {
-		*(error) = g_strdup("missing departure port");
-		return FALSE;
-	} else if (route->departure != NULL && route->destination == NULL) {
-		*(error) = g_strdup("missing destination port");
-		return FALSE;
-	} else if (route->departure != NULL && route->destination != NULL) {
-		query = "SELECT ShipRoutesID FROM ShipRoutes WHERE "
-			"StartingPortID = (SELECT ShipPortID FROM ShipPorts WHERE Name LIKE ?) "
-			"AND EndingPortID = (SELECT ShipPortID FROM ShipPorts WHERE Name LIKE ?)";
-	} else {
-		*(error) = g_strdup("no departure nor destination port");
-		return FALSE;
-	}
-
-	stmt = mysql_stmt_init(db->con);
-	if (!stmt) {
-		*(error) = g_strdup("failed to prepare query, out of memory");
-		return FALSE;
-	}
-
-	if (mysql_stmt_prepare(stmt, query, strlen(query))) {
-		*(error) = g_strconcat("query prepare failed: " , mysql_stmt_error(stmt), NULL);
-	} else {
-		memset(bind, 0, sizeof(bind));
-		bind[0].buffer_type = MYSQL_TYPE_STRING;
-		bind[0].buffer = route->departure;
-		bind[0].buffer_length = strlen(route->departure);
-
-		bind[1].buffer_type = MYSQL_TYPE_STRING;
-		bind[1].buffer = route->destination;
-		bind[1].buffer_length = strlen(route->destination);
-
-		memset(result, 0, sizeof(result));
-		result[0].buffer_type = MYSQL_TYPE_LONG;
-		result[0].buffer = (char *)&id;
-		result[0].length = 0;
-
-		if (mysql_stmt_bind_param(stmt, bind)) {
-			*(error) = g_strdup_printf(mysql_stmt_error(stmt), NULL);
-		} else {
-			if (mysql_stmt_bind_result(stmt, result)) {
-				*(error) = g_strdup_printf(mysql_stmt_error(stmt), NULL);
-			} else {
-				if (mysql_stmt_execute(stmt)) {
-					*(error) = g_strdup_printf(mysql_stmt_error(stmt), NULL);
-				} else {
-					if (mysql_stmt_store_result(stmt)) {
-						*(error) = g_strdup_printf(mysql_stmt_error(stmt), NULL);
-					} else {
-						gint result_ret = mysql_stmt_fetch(stmt);
-
-						if (result_ret != 0) {
-							*(error) = g_strdup("no results");
-						} else {
-							route->id = id;
-							mysql_stmt_free_result(stmt);
-							ret = TRUE;
-						}
-					}
-				}
-			}
-		}
-	}
-
-	mysql_stmt_close(stmt);
-
-	return ret;
-}
-
-gboolean db_update_route(const struct Database *db, const gint64 id,
-			 const gint64 mmsi, gchar **error)
-{
-	const gchar *query;
-
-	query = g_strconcat("UPDATE Ships SET ShipRoutesID = ",
-			    g_strdup_printf("%" G_GINT64_FORMAT, id),
-			    " WHERE MMSI = ", g_strdup_printf("%" G_GINT64_FORMAT, mmsi), NULL);
-	if (mysql_query(db->con, query)) {
-		*(error) = g_strconcat("query failed: ", mysql_error(db->con), NULL);
-		return FALSE;
-	}
-
-	return TRUE;
 }

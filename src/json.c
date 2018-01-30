@@ -20,7 +20,6 @@
 #include <json-glib/json-glib.h>
 #include <string.h>
 #include "json.h"
-#include "config.h"
 
 static gboolean _get_node(const gchar *member, const gchar *json,
 			  JsonNode **node)
@@ -187,6 +186,12 @@ gdouble json_read_entry_double(const gchar *member, const gchar *json,
 	return ret;
 }
 
+gfloat json_read_entry_float(const gchar *member, const gchar *json,
+			     const gint64 index)
+{
+	return (gfloat)json_read_entry_double(member, json, index);
+}
+
 gchar *json_read_entry_string(const gchar *member, const gchar *json,
 			      const gint64 index)
 {
@@ -222,6 +227,43 @@ gchar *json_read_entry_string(const gchar *member, const gchar *json,
 	}
 
 	return ret;
+}
+
+gchar json_read_entry_char(const gchar *member, const gchar *json,
+			   const gint64 index)
+{
+	gchar *ret = NULL;
+	JsonNode *node;
+	GType node_type;
+
+	if (_get_node_from_array(member, json, index, &node)) {
+		node_type = json_node_get_value_type(node);
+
+		switch (node_type) {
+			case G_TYPE_INT:
+			case G_TYPE_UINT:
+			case G_TYPE_LONG:
+			case G_TYPE_ULONG:
+			case G_TYPE_INT64:
+			case G_TYPE_UINT64:
+				ret = g_strdup_printf("%" G_GUINT64_FORMAT,
+						      json_node_get_int(node));
+				break;
+			case G_TYPE_FLOAT:
+			case G_TYPE_DOUBLE:
+				ret = g_strdup_printf("%f",
+						      json_node_get_double(node));
+				break;
+			case G_TYPE_STRING:
+				ret = g_strdup(json_node_get_string(node));
+				break;
+			default:
+				break;
+		}
+		json_node_free(node);
+	}
+
+	return ret ? ret[0] : (gchar)'0';
 }
 
 gboolean save_json_file(const struct Config *config, gchar **error)

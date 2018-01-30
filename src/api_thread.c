@@ -47,39 +47,6 @@ static gchar *_substring(const gchar *text, gint64 offset, gsize len)
 	return ret;
 }
 
-static gboolean parse_route(struct Route *route, const gchar *text)
-{
-	gboolean ret;
-	gchar *departure;
-	gchar *destination;
-	gint64 start_offset;
-
-	ret = FALSE;
-	departure = NULL;
-	destination = NULL;
-	start_offset = 0;
-
-	for (size_t i = 0; i < strlen(text); ++i) {
-		if (text[i] == '-') {
-			if (!departure) {
-				departure = _substring(text, 0, i);
-				start_offset = (i + 1);
-				ret = TRUE;
-			} else {
-				destination = _substring(text, start_offset,
-							 (i - start_offset));
-				ret = TRUE;
-				break;
-			}
-		}
-	}
-
-	route->departure = departure;
-	route->destination = destination;
-
-	return ret;
-}
-
 #ifdef WITH_GUI
 static gboolean _update_label(gpointer widget, gboolean color, const char *text)
 {
@@ -232,39 +199,41 @@ gpointer api_thread(gpointer config)
 			}
 
 			for (gint64 i = 0; i < entries; ++i) {
-				const gchar *name = json_read_entry_string("name", json, i); name = !name ? "" : name;
-				const gint64 mmsi = json_read_entry_int("mmsi", json, i);
-				const gfloat latitude = (gfloat)json_read_entry_double("lat", json, i);
-				const gfloat longitude = (gfloat)json_read_entry_double("lng", json, i);
-				const gfloat course = (gfloat)json_read_entry_double("course", json, i);
-				const gdouble speed = json_read_entry_double("speed", json, i);
-				const gchar *comment = json_read_entry_string("comment", json, i);
-				struct Route *route;
+				struct Ship ship;
+				ship.imo = json_read_entry_int("imo", json, i);
+				ship.name = json_read_entry_string("name", json, i); ship.name = !ship.name ? "" : ship.name;
+				ship.mmsi = json_read_entry_int("mmsi", json, i);
+				ship.course = json_read_entry_float("course", json, i);
+				ship.speed = json_read_entry_float("speed", json, i);
+				ship.comment = json_read_entry_string("comment", json, i);
+				ship.heading = (gint16)json_read_entry_int("heading", json, i);
+				ship.length = json_read_entry_float("length", json, i);
+				ship.width = json_read_entry_float("width", json, i);
+				ship.draught = json_read_entry_float("draught", json, i);
+				ship.ref_front = (gint16)json_read_entry_int("ref_front", json, i);
+				ship.ref_left = (gint16)json_read_entry_int("ref_left", json, i);
+				ship.path = json_read_entry_string("path", json, i);
+				ship.class = json_read_entry_char("class", json, i);
+				ship.type = json_read_entry_char("type", json, i);
+				ship.srccall = json_read_entry_string("srccall", json, i);
+				ship.dstcall = json_read_entry_string("dstcall", json, i);
+				ship.vessel_class = (gint16)json_read_entry_int("vesselclass", json, i);
+				ship.navstat = (gint8)json_read_entry_int("navstat", json, i);
 
-				route = g_slice_alloc(sizeof(*route));
+				ship.time = json_read_entry_int("time", json, i);
+				ship.lasttime = json_read_entry_int("lasttime", json, i);
+				ship.latitude = json_read_entry_double("lat", json, i);
+				ship.longitude = json_read_entry_double("lng", json, i);
+
 				error = NULL;
 
-				if (!db_update_ship_course_speed(db, course, speed, mmsi, &error)) {
-					log_error(g_strconcat(name, ": UPDATE Ships failed, ", error, NULL));
+				if (!db_update_ship_info(db, &ship, &error)) {
+					log_error(g_strconcat(ship.name, ": UPDATE Ships failed, ", error, NULL));
 				}
 
-				if (!db_update_gps_location(db, latitude, longitude, mmsi, &error)) {
-					log_error(g_strconcat(name, ": UPDATE GPS failed, ", error, NULL));
+				if (!db_update_ship_gps(db, &ship, &error)) {
+					log_error(g_strconcat(ship.name, ": UPDATE GPS failed, ", error, NULL));
 				}
-
-				if (!parse_route(route, comment)) {
-					log_error(g_strconcat(name, ": couldn't parse route", NULL));
-				} else {
-					if (!db_get_route_id(db, route, &error)) {
-						log_error(g_strconcat(name, ": failed to get Route ID, ", error, NULL));
-					} else {
-						if (!db_update_route(db, route->id, mmsi, &error)) {
-							log_error(g_strconcat(name, ": UPDATE Course failed, ", error, NULL));
-						}
-					}
-				}
-
-				g_slice_free1(sizeof(*route), route);
 			}
 
 #ifdef WITH_GUI

@@ -70,6 +70,8 @@ if (DEBUG)
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g")
 endif()
 
+list(APPEND SOURCES "src/ship_defines.h")
+
 if (NOT WIN32)
     add_executable(shipsoftware_backend src/main.c ${SOURCES})
 else()

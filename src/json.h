@@ -78,6 +78,19 @@ gdouble json_read_entry_double(const gchar *member, const gchar *json,
 			       const gint64 index);
 
 /**
+ * Read FLOAT value from @c json @c member in "entries" array @c index
+ *
+ * @param[in] member Key in JSON
+ * @param[in] json JSON which to read
+ * @param[in] index Index in the array
+ * @return gfloat
+ *
+ * @note Use only to parse API response!
+ */
+gfloat json_read_entry_float(const gchar *member, const gchar *json,
+			       const gint64 index);
+
+/**
  * Read STRING value from @c json @c member in "entries" array @c index
  *
  * @param[in] member Key in JSON
@@ -89,6 +102,19 @@ gdouble json_read_entry_double(const gchar *member, const gchar *json,
  */
 gchar *json_read_entry_string(const gchar *member, const gchar *json,
 			      const gint64 index);
+
+/**
+ * Read GCHAR from value @c json @c member in "entries" array @c index
+ *
+ * @param member Key in JSON
+ * @param json JSON which to read
+ * @param index Index in the array
+ * @return gchar
+ *
+ * @note Use only to parse API response!
+ */
+gchar json_read_entry_char(const gchar *member, const gchar *json,
+			   const gint64 index);
 
 /**
  * Save config struct to file

@@ -28,16 +28,38 @@
 #define SHIPSOFTWAREBACKEND_SHIP_DEFINES_H
 
 /**
- * @struct Route
- * @brief Holds data about ship route
+ * @struct Ship
+ * @brief Holds information about ship
  *
- * Holds data of ships departure and destination port, combined with
- * the ID of the route which is stored in database for that specific route.
+ * Contains structs of information and GPS information
  */
-struct Route {
-	gchar *departure; /**< Ship departure port */
-	gchar *destination; /**< Ship destination port */
-	gint64 id; /**< ShipRouteID in the database */
+struct Ship {
+	// Info
+	gint64 imo; /**< Ship IMO number */
+	gchar *name; /**< Ship name */
+	gint64 mmsi; /**< Ship MMSI number */
+	gfloat course; /**< Course in degress */
+	gfloat speed; /**< Speed in km/h */
+	gchar *comment; /**< APRS comment or AIS destination and ETA */
+	gint heading; /**< Heading */
+	gfloat length; /**< Ship length in meters */
+	gfloat width; /**< Ship width in meters */
+	gfloat draught; /**< Ship draught in meters */
+	gint ref_front; /**< AIS reference distance from the front */
+	gint ref_left; /**< AIS reference distance from the left */
+	gchar *path; /**< Packet path */
+	gchar class; /**< Class of station identifier (a: ARPS, w: Web..) */
+	gchar type; /**< Target type (a: AIS, i: ARPS item, o: ARPS object, w: weather station) */
+	gchar *srccall; /**< Source callsign */
+	gchar *dstcall; /**< APRS packet destination callsign */
+	gint vessel_class; /**< AIS class code */
+	gint navstat; /**< AIS navigational status code */
+
+	// GPS
+	time_t time; /**< Time when the target first reported this position */
+	time_t lasttime; /**< Time when the target last reported this position */
+	gdouble latitude; /**< Latitude in decimal degrees, north is positive */
+	gdouble longitude; /**< Longitude in decimal degrees, east is positive */
 };
 
 #endif //SHIPSOFTWAREBACKEND_SHIP_DEFINES_H

@@ -73,57 +73,27 @@ void db_close_con(struct Database *db);
 gboolean db_get_ships(const struct Database *db, gchar **ships, gchar **error);
 
 /**
- * Update ship Course and Speed
+ * Update ship information in Ships table
  *
  * @param[in] db Struct of type Database()
- * @param[in] course
- * @param[in] speed
- * @param[in] mmsi Ship MMSI number
+ * @param[in] info Struct of type Ship()
  * @param[out] error Pointer to gchar where to store error message
  * @return gboolean Returns TRUE on success, otherwise FALSE
  */
-gboolean db_update_ship_course_speed(const struct Database *db,
-				     const gfloat course, const gdouble speed,
-				     const gint64 mmsi, gchar **error);
+gboolean db_update_ship_info(const struct Database *db,
+			     const struct Ship *info,
+			     gchar **error);
 
 /**
- * Update GPS location in GPS table
+ * Update GPS information in GPS table
  *
  * @param[in] db Struct of type Database()
- * @param[in] latitude
- * @param[in] longitude
- * @param[in] mmsi Ship MMSI number
+ * @param[in] info Struct of type Ship()
  * @param[out] error Pointer to gchar where to store error message
  * @return gboolean Returns TRUE on success, otherwise FALSE
  */
-gboolean db_update_gps_location(const struct Database *db, const gfloat latitude,
-				const gfloat longitude, const gint64 mmsi,
+gboolean db_update_ship_gps(const struct Database *db,
+				const struct Ship *info,
 				gchar **error);
-
-/**
- * @brief Get route ID
- *
- * Get route ID for route where departure port is @p departure and destination
- * port is @p destination
- *
- * @param[in] db Struct of type Database()
- * @param[in,out] route Struct of type Route()
- * @param[out] error Pointer to gchar where to store error message
- * @return gboolean Returns TRUE on success, otherwise FALSE
- */
-gboolean db_get_route_id(const struct Database *db, struct Route *route,
-			 gchar **error);
-
-/**
- * Update ship current route
- *
- * @param[in] db Struct of type Database()
- * @param[in] id Route ID
- * @param[in] mmsi Ship MMSI number
- * @param[out] error Pointer to gchar where to store error message
- * @return gboolean Returns TRUE on success, otherwise FALSE
- */
-gboolean db_update_route(const struct Database *db, gint64 id,
-			 const gint64 mmsi, gchar **error);
 
 #endif
