@@ -93,7 +93,22 @@ gboolean db_update_ship_info(const struct Database *db,
  * @return gboolean Returns TRUE on success, otherwise FALSE
  */
 gboolean db_update_ship_gps(const struct Database *db,
-				const struct Ship *info,
-				gchar **error);
+			    const struct Ship *info,
+			    gchar **error);
+
+/**
+ * Remove old records from GPS table
+ *
+ * @param[in] db Struct of type Database()
+ * @param[in] IMO Pointer ship IMO
+ * @param[out] error Pointer to gchar where to store error message
+ * @return gboolean Returns TRUE if no records to delete or delete success,
+ * otherwise FALSE
+ *
+ * @note This could be removed if database had a trigger or event which
+ * deletes old records when inserting new record into the table.
+ */
+gboolean db_clean_ship_gps(const struct Database *db, const gint64 *imo,
+			   gchar **error);
 
 #endif

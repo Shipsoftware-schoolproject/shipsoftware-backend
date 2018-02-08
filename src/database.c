@@ -279,91 +279,121 @@ gboolean db_update_ship_gps(const struct Database *db, const struct Ship *info,
 
 	mysql_stmt_close(stmt);
 
-	/**
-	 * @todo Issue [#1](https://github.com/Shipsoftware-schoolproject/shipsoftware-sql/issues/1)
-	 * needs to be fixed in [shipsoftware-sql](https://github.com/Shipsoftware-schoolproject/shipsoftware-sql)
-	 * project. Until that, we use this ugly "work around"..
-	 */
-	if (ret) {
-		ret = FALSE;
-		gchar *count_query;
-		gint64 num_rows;
-		MYSQL_BIND result[1];
+	return ret;
+}
 
-		count_query = g_strdup_printf("SELECT COUNT(*) FROM GPS WHERE IMO = %" G_GINT64_FORMAT, info->imo);
-		num_rows = 0;
+gboolean db_clean_ship_gps(const struct Database *db, const gint64 *imo,
+			   gchar **error)
+{
+	gboolean ret = FALSE;
+	gchar *query;
+	gint64 num_rows;
+	MYSQL_STMT *stmt;
+	MYSQL_BIND result[1];
 
-		stmt = mysql_stmt_init(db->con);
-		if (!stmt) {
-			*(error) = g_strdup("failed to prepare query, out of memory");
-			return FALSE;
-		}
+	query = g_strdup_printf("SELECT COUNT(*) FROM GPS WHERE IMO = %" G_GINT64_FORMAT, *imo);
+	num_rows = 0;
 
-		if (mysql_stmt_prepare(stmt, count_query, strlen(count_query))) {
-			*(error) = g_strconcat("query prepare failed: " ,
-					       mysql_stmt_error(stmt), NULL);
+	stmt = mysql_stmt_init(db->con);
+	if (!stmt) {
+		*(error) = g_strdup("failed to prepare query, out of memory");
+		return FALSE;
+	}
+
+	if (mysql_stmt_prepare(stmt, query, strlen(query))) {
+		*(error) = g_strconcat("query prepare failed: " ,
+				       mysql_stmt_error(stmt), NULL);
+	} else {
+		memset(result, 0, sizeof(result));
+		result[0].buffer_type = MYSQL_TYPE_LONG;
+		result[0].buffer = (char *)&num_rows;
+		result[0].length = 0;
+
+		if (mysql_stmt_bind_result(stmt, result)) {
+			*(error) = g_strdup_printf(mysql_stmt_error(stmt), NULL);
 		} else {
-			memset(result, 0, sizeof(result));
-			result[0].buffer_type = MYSQL_TYPE_LONG;
-			result[0].buffer = (char *)&num_rows;
-			result[0].length = 0;
-
-			if (mysql_stmt_bind_result(stmt, result)) {
-				*(error) = g_strdup_printf(mysql_stmt_error(stmt), NULL);
+			if (mysql_stmt_execute(stmt)) {
+				*(error) = g_strconcat("could not get number of GPS entries: ", mysql_stmt_error(stmt), NULL);
 			} else {
-				if (mysql_stmt_execute(stmt)) {
-					*(error) = g_strconcat("could not get number of GPS entries: ", mysql_stmt_error(stmt), NULL);
+				if (mysql_stmt_store_result(stmt)) {
+					*(error) = g_strconcat(mysql_stmt_error(stmt), NULL);
 				} else {
-					if (mysql_stmt_store_result(stmt)) {
-						*(error) = g_strconcat(mysql_stmt_error(stmt), NULL);
+					if (mysql_stmt_fetch(stmt) != 0) {
+						*(error) = g_strconcat("failed to fetch results, ",
+								       mysql_stmt_error(stmt),
+								       NULL);
 					} else {
-						if (mysql_stmt_fetch(stmt) != 0) {
-							*(error) = g_strconcat("failed to fetch results, ", mysql_stmt_error(stmt), NULL);
-						} else {
-							while (num_rows > 5) {
-								gchar *query = g_strdup_printf("SELECT LogID FROM GPS WHERE IMO = %" G_GINT64_FORMAT " ORDER BY LogID ASC LIMIT 1", info->imo);
-								MYSQL_STMT *del_stmt;
-								MYSQL_BIND del_result[1];
-								gint32 log_id;
-
-								log_id = 0;
-
-								del_stmt = mysql_stmt_init(db->con);
-								if (del_stmt) {
-									if (!mysql_stmt_prepare(del_stmt, query, strlen(query))) {
-										memset(del_result, 0, sizeof(del_result));
-										del_result[0].buffer_type = MYSQL_TYPE_LONG;
-										del_result[0].buffer = (char *)&log_id;
-										del_result[0].length = 0;
-
-										if (!mysql_stmt_bind_result(del_stmt, del_result)) {
-											if (!mysql_stmt_execute(del_stmt)) {
-												if (!mysql_stmt_store_result(del_stmt)) {
-													if (mysql_stmt_fetch(del_stmt) == 0) {
-														gchar *del_query = g_strdup_printf("DELETE FROM GPS WHERE LogID = %" G_GINT32_FORMAT, log_id);
-														mysql_query(db->con, del_query);
-														g_free(del_query);
-													}
-													mysql_stmt_free_result(del_stmt);
-												}
-											}
-										}
-									}
-									mysql_stmt_close(del_stmt);
-								}
-								--num_rows;
-								g_free(query);
-							}
-							ret = TRUE;
-						}
-						mysql_stmt_free_result(stmt);
+						ret = TRUE;
 					}
+					mysql_stmt_free_result(stmt);
 				}
 			}
 		}
+	}
+	mysql_stmt_close(stmt);
+	g_free(query);
 
-		mysql_stmt_close(stmt);
-		g_free(count_query);
+	if (num_rows == 0)
+		return ret;
+
+	while (num_rows > 20) {
+		gchar *id_query = g_strdup_printf("SELECT ID FROM GPS WHERE IMO = %" G_GINT64_FORMAT " ORDER BY ID ASC LIMIT 1", *imo);
+		MYSQL_STMT *del_stmt;
+		MYSQL_BIND del_result[1];
+		gint32 log_id;
+
+		log_id = 0;
+
+		del_stmt = mysql_stmt_init(db->con);
+		if (!del_stmt) {
+			*(error) = g_strdup("failed to prepare query, out of memory");
+			return FALSE;
+		} else {
+			if (mysql_stmt_prepare(del_stmt, id_query, strlen(id_query))) {
+				*(error) = g_strconcat("query prepare failed: ",
+						       mysql_stmt_error(del_stmt),
+						       NULL);
+			} else {
+				memset(del_result, 0, sizeof(del_result));
+				del_result[0].buffer_type = MYSQL_TYPE_LONG;
+				del_result[0].buffer = (char *)&log_id;
+				del_result[0].length = 0;
+
+				if (mysql_stmt_bind_result(del_stmt, del_result)) {
+					*(error) = g_strdup_printf(mysql_stmt_error(del_stmt), NULL);
+				} else {
+					if (mysql_stmt_execute(del_stmt)) {
+						*(error) = g_strconcat("could not get GPS entry ID: ",
+								       mysql_stmt_error(del_stmt), NULL);
+					} else {
+						if (mysql_stmt_store_result(del_stmt)) {
+							*(error) = g_strconcat(mysql_stmt_error(del_stmt), NULL);
+						} else {
+							if (mysql_stmt_fetch(del_stmt)) {
+								*(error) = g_strconcat(
+									"failed to delete GPS location, ",
+									mysql_stmt_error(del_stmt),
+									NULL);
+							} else {
+								gchar *del_query = g_strdup_printf("DELETE FROM GPS WHERE ID = %" G_GINT32_FORMAT, log_id);
+								if (mysql_query(db->con, del_query)) {
+									*(error) = g_strconcat("query failed, ",
+									mysql_stmt_errno(del_stmt));
+									ret = FALSE;
+								} else {
+									ret = TRUE;
+								}
+								g_free(del_query);
+							}
+							mysql_stmt_free_result(del_stmt);
+						}
+					}
+				}
+			}
+			mysql_stmt_close(del_stmt);
+		}
+		--num_rows;
+		g_free(id_query);
 	}
 
 	return ret;

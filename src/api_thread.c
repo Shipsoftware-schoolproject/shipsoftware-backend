@@ -234,6 +234,13 @@ gpointer api_thread(gpointer config)
 				if (!db_update_ship_gps(db, &ship, &error)) {
 					log_error(g_strconcat(ship.name, ": UPDATE GPS failed, ", error, NULL));
 				}
+
+				if (!db_clean_ship_gps(db, &ship.imo, &error)) {
+					log_error(g_strconcat(ship.name,
+							      ": DELETE of old GPS records failed, ",
+							      error,
+							      NULL));
+				}
 			}
 
 #ifdef WITH_GUI
