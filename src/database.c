@@ -100,7 +100,7 @@ gboolean db_get_ships(const struct Database *db, gchar **ships, gchar **error)
 	return ret;
 }
 
-gboolean db_update_ship_info(const struct Database *db, const struct Ship *info,
+gboolean db_update_ship_info(const struct Database *db, struct Ship *info,
 			     gchar **error)
 {
 	gboolean ret;
@@ -203,7 +203,7 @@ gboolean db_update_ship_info(const struct Database *db, const struct Ship *info,
 	return ret;
 }
 
-gboolean db_update_ship_gps(const struct Database *db, const struct Ship *info,
+gboolean db_update_ship_gps(const struct Database *db, struct Ship *info,
 			    gchar **error)
 {
 	gboolean ret;

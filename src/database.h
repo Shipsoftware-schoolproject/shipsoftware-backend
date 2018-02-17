@@ -81,7 +81,7 @@ gboolean db_get_ships(const struct Database *db, gchar **ships, gchar **error);
  * @return gboolean Returns TRUE on success, otherwise FALSE
  */
 gboolean db_update_ship_info(const struct Database *db,
-			     const struct Ship *info,
+			     struct Ship *info,
 			     gchar **error);
 
 /**
@@ -93,7 +93,7 @@ gboolean db_update_ship_info(const struct Database *db,
  * @return gboolean Returns TRUE on success, otherwise FALSE
  */
 gboolean db_update_ship_gps(const struct Database *db,
-			    const struct Ship *info,
+			    struct Ship *info,
 			    gchar **error);
 
 /**
