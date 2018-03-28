@@ -28,25 +28,6 @@
 
 int RUNNING = 0;
 
-static gchar *_substring(const gchar *text, gint64 offset, gsize len)
-{
-	gchar *ret = NULL;
-	gint64 text_len;
-	gchar *tmp;
-
-	text_len = strlen(text);
-
-	if ((offset + len) > text_len) {
-		return NULL;
-	} else {
-		tmp = g_strndup(text + offset, (len));
-		ret = g_strconcat(tmp, "%", NULL);
-		g_free(tmp);
-	}
-
-	return ret;
-}
-
 #ifdef WITH_GUI
 static gboolean _update_label(gpointer widget, gboolean color, const char *text)
 {
