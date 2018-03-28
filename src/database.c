@@ -229,7 +229,11 @@ gboolean db_update_ship_gps(const struct Database *db, struct Ship *info,
 		MYSQL_TIME sql_time;
 		MYSQL_TIME sql_lasttime;
 
+#ifdef __WIN32__
+		gmtime_s(&unix_time, &info->time);
+#else
 		gmtime_r(&info->time, &unix_time);
+#endif
 		sql_time.year = 1900 + (guint)unix_time.tm_year;
 		sql_time.month = 1 + (guint)unix_time.tm_mon;
 		sql_time.day = (guint)unix_time.tm_mday;
@@ -239,7 +243,11 @@ gboolean db_update_ship_gps(const struct Database *db, struct Ship *info,
 		sql_time.second_part = 0;
 		sql_time.neg = 0;
 
+#ifdef __WIN32__
+		gmtime_s(&unix_lasttime, &info->lasttime);
+#else
 		gmtime_r(&info->lasttime, &unix_lasttime);
+#endif
 		sql_lasttime.year = 1900 + (guint)unix_lasttime.tm_year;
 		sql_lasttime.month = 1 + (guint)unix_lasttime.tm_mon;
 		sql_lasttime.day = (guint)unix_lasttime.tm_mday;
