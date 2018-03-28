@@ -372,13 +372,12 @@ gboolean db_clean_ship_gps(const struct Database *db, const gint64 *imo,
 							if (mysql_stmt_fetch(del_stmt)) {
 								*(error) = g_strconcat(
 									"failed to delete GPS location, ",
-									mysql_stmt_error(del_stmt),
-									NULL);
+									mysql_stmt_error(del_stmt), NULL);
 							} else {
 								gchar *del_query = g_strdup_printf("DELETE FROM GPS WHERE ID = %" G_GINT32_FORMAT, log_id);
 								if (mysql_query(db->con, del_query)) {
 									*(error) = g_strconcat("query failed, ",
-									mysql_stmt_errno(del_stmt));
+										mysql_stmt_error(del_stmt), NULL);
 									ret = FALSE;
 								} else {
 									ret = TRUE;
