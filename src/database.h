@@ -79,6 +79,8 @@ gboolean db_get_ships(const struct Database *db, gchar **ships, gchar **error);
  * @param[in] info Struct of type Ship()
  * @param[out] error Pointer to gchar where to store error message
  * @return gboolean Returns TRUE on success, otherwise FALSE
+ * @note IMO seems to vary from time to time, so ship info (including IMO) is
+ * updated based on the MMSI
  */
 gboolean db_update_ship_info(const struct Database *db,
 			     struct Ship *info,

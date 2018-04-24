@@ -109,7 +109,7 @@ gboolean db_update_ship_info(const struct Database *db, struct Ship *info,
 	MYSQL_BIND bind[19];
 
 	ret = FALSE;
-	query = "UPDATE Ships SET ShipName = ?, CommentText = ?, ShipLength = ?, Width = ?, Draught = ?, MMSI = ?, Course = ?, Heading = ?, ShipSpeed = ?, RefFront = ?, RefLeft = ?, PathText = ?, Iclass = ?, TargetType = ?, SrcCall = ?, DstCall = ?, VesselClass = ?, NavStat = ? WHERE IMO = ?";
+	query = "UPDATE Ships SET IMO = ?, ShipName = ?, CommentText = ?, ShipLength = ?, Width = ?, Draught = ?, Course = ?, Heading = ?, ShipSpeed = ?, RefFront = ?, RefLeft = ?, PathText = ?, Iclass = ?, TargetType = ?, SrcCall = ?, DstCall = ?, VesselClass = ?, NavStat = ? WHERE MMSI = ?";
 
 	stmt = mysql_stmt_init(db->con);
 	if (!stmt) {
