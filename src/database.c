@@ -123,25 +123,25 @@ gboolean db_update_ship_info(const struct Database *db, struct Ship *info,
 	} else {
 		memset(bind, 0, sizeof(bind));
 
-		bind[0].buffer_type = MYSQL_TYPE_STRING;
-		bind[0].buffer = info->name;
-		bind[0].buffer_length = strlen(info->name);
+		bind[0].buffer_type = MYSQL_TYPE_LONG;
+		bind[0].buffer = &info->imo;
 
 		bind[1].buffer_type = MYSQL_TYPE_STRING;
-		bind[1].buffer = info->comment;
-		bind[1].buffer_length = strlen(info->comment);
+		bind[1].buffer = info->name;
+		bind[1].buffer_length = strlen(info->name);
 
-		bind[2].buffer_type = MYSQL_TYPE_FLOAT;
-		bind[2].buffer = &info->length;
+		bind[2].buffer_type = MYSQL_TYPE_STRING;
+		bind[2].buffer = info->comment;
+		bind[2].buffer_length = strlen(info->comment);
 
 		bind[3].buffer_type = MYSQL_TYPE_FLOAT;
-		bind[3].buffer = &info->width;
+		bind[3].buffer = &info->length;
 
 		bind[4].buffer_type = MYSQL_TYPE_FLOAT;
-		bind[4].buffer = &info->draught;
+		bind[4].buffer = &info->width;
 
-		bind[5].buffer_type = MYSQL_TYPE_LONG;
-		bind[5].buffer = &info->mmsi;
+		bind[5].buffer_type = MYSQL_TYPE_FLOAT;
+		bind[5].buffer = &info->draught;
 
 		bind[6].buffer_type = MYSQL_TYPE_FLOAT;
 		bind[6].buffer = &info->course;
@@ -185,7 +185,7 @@ gboolean db_update_ship_info(const struct Database *db, struct Ship *info,
 		bind[17].buffer = &info->navstat;
 
 		bind[18].buffer_type = MYSQL_TYPE_LONG;
-		bind[18].buffer = &info->imo;
+		bind[18].buffer = &info->mmsi;
 
 		if (mysql_stmt_bind_param(stmt, bind)) {
 			*(error) = g_strdup_printf(mysql_stmt_error(stmt), NULL);
