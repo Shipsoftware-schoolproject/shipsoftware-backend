@@ -3,9 +3,9 @@
 ShipSoftware-backend was a school project which was worked on in couple
 different course in VAMK on 2017-2018.
 
-Initial version of this project was made with C# but Tomi wanted to get in
-touch with some cross-platform development and of course use some C so the
-project was rewritten from scratch with C with a complete documentation.
+Initial version of this project was made with C# but was then re-written in C to
+get a grasp of cross-platform development. In re-write a full documentation
+with Doxygen was added.
 
 This program is just a dummy "middleman" between aprs.fi API and database and it
 does not provide any other functionality than automatically getting data from
