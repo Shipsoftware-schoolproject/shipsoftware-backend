@@ -3,7 +3,7 @@ project (ShipSoftwareBackend C)
 
 # Version number
 set(ShipSoftwareBackend_VERSION_MAJOR 1)
-set(ShipSoftwareBackend_VERSION_MINOR 0)
+set(ShipSoftwareBackend_VERSION_MINOR 1)
 set(ShipSoftwareBackend_VERSION_PATCH 0)
 set(ShipSoftwareBackend_VERSION ${ShipSoftwareBackend_VERSION_MAJOR}.${ShipSoftwareBackend_VERSION_MINOR}.${ShipSoftwareBackend_VERSION_PATCH})
 configure_file(
