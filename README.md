@@ -72,7 +72,9 @@ See [Contributing](CONTRIBUTING.md).
  * libcurl-dev
  * libgtk-3-dev (required only for GUI build)
  * doxygen (optional)
- * python3 (optional, for copying DLL's when cross-compiling)
+#### For cross-compiling for Windows
+ * python3
+ * binutils (objdump)
 
 ## Building
 
