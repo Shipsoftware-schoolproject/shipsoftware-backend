@@ -50,8 +50,6 @@ the project has been configured to generate documentation only in HTML format.
 To generate documentation along with the build, see `CMake flags` section
 for the flag to trigger generation of documentation.
 
-Documentation is also available at [here](http://lihis.net/docs/shipsoftware-backend).
-
 ## Contributing
 
 See [Contributing](CONTRIBUTING.md).
